@@ -1,0 +1,12 @@
+{
+  "source": "calls",
+  "day": "2026-06-15",
+  "run_id": "sample_day",
+  "where": "received_dttm >= '2026-06-15' AND received_dttm < '2026-06-16'",
+  "rows_expected": 945,
+  "rows_received": 945,
+  "pages_written": 1,
+  "complete": true,
+  "requested_at": "2026-09-23T16:47:50.800259+00:00",
+  "note": "Small single-day sample committed to git for review; the real backfill pulls by month and is gitignored (docs/decision_log.md)"
+}

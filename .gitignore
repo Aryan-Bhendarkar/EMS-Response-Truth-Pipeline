@@ -10,10 +10,11 @@ venv/
 # Secrets
 .env
 
-# Raw data (kept locally, not committed) — one sample month is force-added, see docs/source_map.md
+# Raw data (kept locally, not committed) — one sample month is force-added
+# with `git add -f` for reviewers (see docs/source_map.md); everything else
+# stays local since it's fully reproducible via `python -m pipeline.extract`.
 data/raw/*
 !data/raw/.gitkeep
-!data/raw/sample_month/
 
 # Processed data and local warehouse
 data/processed/*

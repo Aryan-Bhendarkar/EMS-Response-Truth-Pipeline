@@ -1,0 +1,32 @@
+# Non-secret pipeline configuration. Secrets (Socrata app token) live only in .env.
+
+sources:
+  calls:
+    dataset_id: nuek-vuh3
+    base_url: https://data.sf.gov/resource/nuek-vuh3.json
+    timestamp_field: received_dttm   # used to build the month filter
+    order_field: rowid               # stable sort key for pagination
+  scorecard:
+    dataset_id: kc49-udxn
+    base_url: https://data.sf.gov/resource/kc49-udxn.json
+    measure_code: "973"
+    order_field: calendar_month
+
+retrieval:
+  page_size: 50000
+  max_retries: 5
+  backoff_base_seconds: 2
+  backoff_max_seconds: 60
+  retry_status_codes: [429, 500, 502, 503, 504]
+  timeout_seconds: 60
+
+backfill:
+  # Primary reconciliation window: 12 months ending at the latest month with a
+  # published scorecard actual, so every backfilled month has an official
+  # number to reconcile against. Row counts + reasoning: docs/decision_log.md
+  # and docs/source_map.md (2026-09-23).
+  start_month: "2025-07"
+  end_month: "2026-06"
+
+incremental:
+  lookback_days: 3   # re-pull this many trailing days each run to catch late-arriving updates (brief Q7)

@@ -1,0 +1,11 @@
+{
+  "source": "scorecard",
+  "measure_code": "973",
+  "run_id": "20260923T163928Z",
+  "where": "measure_code = '973'",
+  "rows_expected": 160,
+  "rows_received": 160,
+  "pages_written": 1,
+  "complete": true,
+  "requested_at": "2026-09-23T16:39:32.331944+00:00"
+}

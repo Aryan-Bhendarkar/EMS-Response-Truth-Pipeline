@@ -87,3 +87,35 @@ dispatch-clock and a call-received-clock definition across all backfilled months
 actually reproduces the officially published `actual` values in `kc49-udxn` — that empirical match
 is the real evidence, not a search-engine summary. This is exactly the "which clock?" judgement
 call the brief anticipated (§4, §8) — it stays open until Phase 4 produces that comparison.
+
+---
+
+## 2026-09-23 — Backfill window sized and pulled; second retrieval mode added as a real cross-check, not a token file format
+
+**Finding:** Live `count(*)` queries against `nuek-vuh3` gave 364,873 rows for 2025-07..2026-06
+(the reconciliation window chosen above) vs. 357,126 rows for 2025-10..2026-09 (a naive
+"12 months back from today" window, which would leave the 3 most recent months unreconcilable
+against the scorecard's ~3-month lag). Both are close to the brief's ~350k estimate.
+
+**Choice:** Pulled the full 2025-07..2026-06 window via `pipeline/extract.py --backfill`
+(month-by-month SODA API, JSON). All 12 months came back complete — the API's own `count(*)`
+matched rows received exactly for every month (29,681 .. 33,174 rows/month; total 364,873,
+`data/raw/calls/run_ts=20260923T163957Z/*/manifest.json`).
+
+For the second retrieval mode required by the rubric ("≥2 modes across SQL, API, JSON/CSV/files"),
+considered pulling the true bulk export (`accessType=DOWNLOAD`, 7.44M rows, full 2000-present
+history) as brief §3 (S2) originally suggested, but rejected it: that file is two orders of
+magnitude larger than the analysis window needs, contradicts the brief's own "scope to 12 months"
+sizing decision (§11), and downloading it would cost real time for zero analytical value — we
+don't use pre-2025 data anywhere in this project.
+
+**Instead:** implemented `extract_calls_month_csv()`, pulling the same month through the SODA
+API's CSV export format (`.csv` instead of `.json`) rather than the unfiltered bulk file. Ran it
+for June 2026 and compared against the JSON pull for the same month: **28,737 rows both ways,
+exact match.** This is a genuine second format/parser path (different content-type, different
+parsing code) and doubles as a completeness cross-check between two independently-implemented
+retrieval paths for the same data — stronger evidence than a format swap alone would give.
+
+**Why it matters:** Satisfies the retrieval-mode requirement with a real validation payoff instead
+of a checkbox exercise, and keeps local storage/runtime proportionate to what the project actually
+analyzes.

@@ -1,7 +1,7 @@
 # EMS Response Truth Pipeline
 
 > SF 911 ambulance dispatch data → a validated, repeatable ambulance-response KPI.
-> FDE Data Foundations Assignment (Classes 4–8), Track C. Status: **Phase 0 — scaffolding.**
+> FDE Data Foundations Assignment (Classes 4–8), Track C. Status: **Phase 2 — retrieval.**
 
 ## Problem
 
@@ -34,11 +34,14 @@ priority rule, which units count) is itself an open question this project resolv
 
 | Source | Access | Role |
 |---|---|---|
-| Fire Dept & EMS Dispatched Calls for Service (`nuek-vuh3`) | SODA API + bulk CSV | Core lifecycle timestamps |
+| Fire Dept & EMS Dispatched Calls for Service (`nuek-vuh3`) | SODA API (JSON, month-by-month) + SODA CSV export | Core lifecycle timestamps |
 | City Performance Scorecard Measures (`kc49-udxn`, measure 973) | SODA API | Official published KPI, reconciliation target |
-| Fire Incidents (`wr8u-xric`) | SODA API | Optional cross-check |
 
-Full detail, ownership, grain and gaps: `docs/source_map.md` (added in Phase 1).
+`wr8u-xric` (Fire Incidents) and an optional weather API were considered and cut — both are
+explicitly scoped to non-medical data or association-only signals with no concrete question to
+answer yet. See `docs/decision_log.md`.
+
+Full detail, ownership, grain and gaps: `docs/source_map.md` (Phase 1).
 
 ## Setup and run
 
@@ -53,9 +56,21 @@ source ~/.venvs/sf-ems-pipeline/bin/activate
 pip install -r requirements.txt
 cp config/.env.example .env   # fill in SOCRATA_APP_TOKEN (optional but recommended)
 
-# Run the pipeline for one month
+# Pull raw data (Phase 2 — implemented; run_pipeline.py orchestrates this from Phase 5 on)
+python -m pipeline.extract --month 2026-07        # one month, JSON API
+python -m pipeline.extract --csv-month 2026-07    # same month, CSV export (retrieval-mode cross-check)
+python -m pipeline.extract --since 3              # trailing 3-day lookback, for late-arriving updates
+python -m pipeline.extract --scorecard            # official monthly KPI series
+python -m pipeline.extract --backfill             # full window from config/settings.yaml (12 months)
+
+# Full pipeline (added in Phase 5)
 python run_pipeline.py --month 2026-07
 ```
+
+Every extract run proves completeness before saving anything: it asks the API for `count(*)`
+under the same filter it's about to page through, and fails loudly (non-zero exit, logged) if the
+rows received don't match. Raw pages are saved untouched to
+`data/raw/<source>/run_ts=<timestamp>/`, never overwritten by later runs.
 
 *(`run_pipeline.py` is added in Phase 5; this section will be kept accurate as the pipeline is built.)*
 

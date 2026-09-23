@@ -1,7 +1,7 @@
 # EMS Response Truth Pipeline
 
 > SF 911 ambulance dispatch data → a validated, repeatable ambulance-response KPI.
-> FDE Data Foundations Assignment (Classes 4–8), Track C. Status: **Phase 3 — profiling & validation.**
+> FDE Data Foundations Assignment (Classes 4–8), Track C. Status: **Phase 5 — dependable pipeline.**
 
 ## Problem
 
@@ -56,29 +56,28 @@ source ~/.venvs/sf-ems-pipeline/bin/activate
 pip install -r requirements.txt
 cp config/.env.example .env   # fill in SOCRATA_APP_TOKEN (optional but recommended)
 
-# Pull raw data (Phase 2 — implemented; run_pipeline.py orchestrates this from Phase 5 on)
-python -m pipeline.extract --month 2026-07        # one month, JSON API
-python -m pipeline.extract --csv-month 2026-07    # same month, CSV export (retrieval-mode cross-check)
-python -m pipeline.extract --since 3              # trailing 3-day lookback, for late-arriving updates
-python -m pipeline.extract --scorecard            # official monthly KPI series
-python -m pipeline.extract --backfill             # full window from config/settings.yaml (12 months)
-
-# Full pipeline (added in Phase 5)
+# One command: extract -> validate -> load -> transform -> metrics -> report -> save
 python run_pipeline.py --month 2026-07
+python run_pipeline.py --since 3              # incremental: trailing 3-day lookback
+
+# One-time backfill of the 12-month analysis window (config/settings.yaml)
+python -m pipeline.extract --backfill
+
+# Failure-handling demos
+python run_pipeline.py --month 2026-05 --chaos missing_column       # FAIL, publishes nothing
+python run_pipeline.py --month 2026-04 --chaos duplicate_rowid      # WARN, dedupes on load
+python run_pipeline.py --since 3 --chaos stale_data                 # FAIL freshness
+python run_pipeline.py --month 2026-03 --chaos truncated_pagination # FAIL manifest_completeness
+python run_pipeline.py --month 2026-02 --chaos late_update          # passes; re-run load.py to see the upsert
+
+# Tests
+python -m pytest tests/
 ```
 
-Every extract run proves completeness before saving anything: it asks the API for `count(*)`
-under the same filter it's about to page through, and fails loudly (non-zero exit, logged) if the
-rows received don't match. Raw pages are saved untouched to
-`data/raw/<source>/run_ts=<timestamp>/`, never overwritten by later runs.
-
-```bash
-# Validate a pulled run (Phase 3 — implemented)
-python -m pipeline.validate --run-ts 20260923T163957Z
-# writes outputs/validation_report.json; PASS/WARN/FAIL per rule, non-zero exit on any FAIL
-```
-
-*(`run_pipeline.py` is added in Phase 5; this section will be kept accurate as the pipeline is built.)*
+A FAIL at the validate stage stops the run before anything is loaded or published — nothing in
+`outputs/<scope>/` is written until the data has passed every structural check. Every stage's
+individual module (`pipeline/extract.py`, `validate.py`, `load.py`, `metrics.py`) can also be run
+standalone; see each module's docstring or `GATE2_DATA_READINESS.md` for real run evidence.
 
 ## Outputs
 

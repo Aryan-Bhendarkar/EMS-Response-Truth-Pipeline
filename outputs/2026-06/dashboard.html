@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SF EMS Response — 2026-06</title>
+
+<style>
+  :root { --bg:#0b0d12; --panel:#151922; --border:#262b36; --text:#e7ebf3; --muted:#9aa4b5;
+          --pass:#3ecf8e; --warn:#f5b849; --fail:#f0556b; --accent:#5b9bff; }
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, Segoe UI, Roboto, sans-serif;
+         margin: 0; padding: 32px 24px 64px; max-width: 980px; margin-inline: auto; }
+  h1 { font-size: 22px; margin-bottom: 4px; }
+  h2 { font-size: 16px; color: var(--muted); font-weight: 600; margin-top: 40px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+  .subtitle { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+  .kpi-row { display: flex; gap: 16px; flex-wrap: wrap; }
+  .kpi-card { flex: 1; min-width: 190px; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+  .kpi-value { font-size: 28px; font-weight: 700; }
+  .kpi-label { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .badge { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 11px; font-weight: 700; letter-spacing: .04em; }
+  .badge-pass { background: rgba(62,207,142,.15); color: var(--pass); }
+  .badge-warn { background: rgba(245,184,73,.15); color: var(--warn); }
+  .badge-fail { background: rgba(240,85,107,.15); color: var(--fail); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .03em; }
+  tr.best { background: rgba(91,155,255,.08); }
+  .bar-row { display: flex; align-items: center; gap: 10px; margin: 8px 0; font-size: 13px; }
+  .bar-label { width: 160px; color: var(--muted); flex-shrink: 0; }
+  .bar-track { flex: 1; background: #1d2230; border-radius: 4px; height: 18px; overflow: hidden; }
+  .bar-fill { height: 100%; background: var(--accent); border-radius: 4px; }
+  .bar-value { width: 70px; text-align: right; flex-shrink: 0; }
+  .footer { color: var(--muted); font-size: 11px; margin-top: 40px; border-top: 1px solid var(--border); padding-top: 12px; }
+</style>
+
+</head>
+<body>
+  <h1>EMS Response Truth Pipeline</h1>
+  <div class="subtitle">Run for 2026-06 &middot; generated 2026-09-23 17:45 UTC &middot; gate status <span class="badge badge-warn">WARN</span></div>
+
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-value">85.6%</div>
+      <div class="kpi-label">M1 — best-fit definition, 2026-06 (target 90%, 10 min)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value">88.4%</div>
+      <div class="kpi-label">Official scorecard, same month</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value">21,896</div>
+      <div class="kpi-label">Ambulance-hours lost to hospital turnaround &gt; 30 min (12 mo.)</div>
+    </div>
+  </div>
+
+  <h2>M1 — which definition reproduces the official number?</h2>
+  <div class="panel">
+    <table>
+      <tr><th>Definition</th><th>Months compared</th><th>Mean gap to official</th><th></th></tr>
+      <tr class="best"><td>Clock=dispatch, priority=original in {3,E}, units=MEDIC only</td><td>12</td><td>3.5 pts</td><td>&#9733; best fit</td></tr><tr class=""><td>Clock=dispatch, call_type_group=Potentially Life-Threatening, units=any</td><td>12</td><td>3.6 pts</td><td></td></tr><tr class=""><td>Clock=dispatch, priority=final=3, units=MEDIC+PRIVATE</td><td>12</td><td>5.0 pts</td><td></td></tr><tr class=""><td>Clock=911 call received, priority=original in {3,E}, units=MEDIC only</td><td>12</td><td>21.6 pts</td><td></td></tr><tr class=""><td>Clock=911 call received, priority=final=3, units=MEDIC+PRIVATE</td><td>12</td><td>22.1 pts</td><td></td></tr>
+    </table>
+  </div>
+
+  <h2>Where time is lost (most recent month, per-step median)</h2>
+  <div class="panel">
+    <div class="bar-row"><div class="bar-label">Call processing (M2)</div><div class="bar-track"><div class="bar-fill" style="width:5%"></div></div><div class="bar-value">2.2 min</div></div>
+    <div class="bar-row"><div class="bar-label">Ambulance travel (M3)</div><div class="bar-track"><div class="bar-fill" style="width:18%"></div></div><div class="bar-value">7.5 min</div></div>
+    <div class="bar-row"><div class="bar-label">Hospital turnaround (M4)</div><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><div class="bar-value">40.7 min</div></div>
+  </div>
+
+  <h2>M4 — hospital turnaround trend (30-min standard)</h2>
+  <div class="panel">
+    <table>
+      <tr><th>Month</th><th>Transports</th><th>% over standard</th><th>p50 min</th><th>p90 min</th><th>Ambulance-hrs lost</th></tr>
+      <tr><td>2025-07</td><td>6913</td><td>82.5%</td><td>41.0</td><td>64.0</td><td>1707</td></tr><tr><td>2025-08</td><td>7110</td><td>82.3%</td><td>40.9</td><td>64.3</td><td>1738</td></tr><tr><td>2025-09</td><td>6983</td><td>81.4%</td><td>40.2</td><td>63.4</td><td>1669</td></tr><tr><td>2025-10</td><td>7241</td><td>82.6%</td><td>41.4</td><td>65.1</td><td>1833</td></tr><tr><td>2025-11</td><td>6585</td><td>81.7%</td><td>41.3</td><td>63.6</td><td>1618</td></tr><tr><td>2025-12</td><td>7425</td><td>84.3%</td><td>42.6</td><td>67.9</td><td>2063</td></tr><tr><td>2026-01</td><td>7429</td><td>84.4%</td><td>43.5</td><td>67.8</td><td>2098</td></tr><tr><td>2026-02</td><td>6945</td><td>85.3%</td><td>43.7</td><td>68.3</td><td>2016</td></tr><tr><td>2026-03</td><td>7350</td><td>84.2%</td><td>42.3</td><td>67.0</td><td>1960</td></tr><tr><td>2026-04</td><td>7048</td><td>83.9%</td><td>41.9</td><td>64.3</td><td>1762</td></tr><tr><td>2026-05</td><td>7353</td><td>81.8%</td><td>41.1</td><td>63.1</td><td>1762</td></tr><tr><td>2026-06</td><td>6816</td><td>82.2%</td><td>40.7</td><td>64.3</td><td>1672</td></tr>
+    </table>
+  </div>
+
+  <h2>Validation gate — <span class="badge badge-warn">WARN</span></h2>
+  <div class="panel">
+    <table>
+      <tr><th>Rule</th><th>Severity</th><th>Action</th></tr>
+      <tr><td>manifest_completeness</td><td><span class="badge badge-pass">PASS</span></td><td>None.</td></tr><tr><td>schema_required_columns</td><td><span class="badge badge-pass">PASS</span></td><td>None.</td></tr><tr><td>rowid_uniqueness</td><td><span class="badge badge-pass">PASS</span></td><td>None.</td></tr><tr><td>null_rate_response_dttm</td><td><span class="badge badge-warn">WARN</span></td><td>Continue; excluded from metrics that require response_dttm, counted separately per brief Q4/Q9 (cancelled / unable-to-locate / genuinely-missing all fall here).</td></tr><tr><td>null_rate_on_scene_dttm</td><td><span class="badge badge-warn">WARN</span></td><td>Continue; excluded from metrics that require on_scene_dttm, counted separately per brief Q4/Q9 (cancelled / unable-to-locate / genuinely-missing all fall here).</td></tr><tr><td>null_rate_call_type_group</td><td><span class="badge badge-warn">WARN</span></td><td>Continue; excluded from metrics that require call_type_group, counted separately per brief Q4/Q9 (cancelled / unable-to-locate / genuinely-missing all fall here).</td></tr><tr><td>timestamp_order_dispatch_dttm_before_response_dttm</td><td><span class="badge badge-pass">PASS</span></td><td>None.</td></tr><tr><td>timestamp_order_response_dttm_before_on_scene_dttm</td><td><span class="badge badge-pass">PASS</span></td><td>None.</td></tr><tr><td>timestamp_order_on_scene_dttm_before_transport_dttm</td><td><span class="badge badge-pass">PASS</span></td><td>None.</td></tr><tr><td>timestamp_order_transport_dttm_before_hospital_dttm</td><td><span class="badge badge-warn">WARN</span></td><td>Continue; rows where hospital_dttm < transport_dttm are excluded from interval metrics built on this pair and counted, per brief Q5 — not silently dropped from the dataset.</td></tr><tr><td>timestamp_order_hospital_dttm_before_available_dttm</td><td><span class="badge badge-warn">WARN</span></td><td>Continue; rows where available_dttm < hospital_dttm are excluded from interval metrics built on this pair and counted, per brief Q5 — not silently dropped from the dataset.</td></tr><tr><td>priority_domain</td><td><span class="badge badge-warn">WARN</span></td><td>Continue. Mapping documented in docs/assumptions.md as confirmed_by_owner=false.</td></tr><tr><td>freshness</td><td><span class="badge badge-pass">PASS</span></td><td>None — freshness vs. wall-clock time applies to --since/current-month pulls, not backfills.</td></tr>
+    </table>
+  </div>
+
+  <div class="footer">
+    Generated by pipeline/report.py. Every number above comes from outputs/metrics.json and
+    outputs/validation_report.json for this run - see docs/judgement_call.md, docs/decision_log.md
+    and docs/assumptions.md for the reasoning behind each definition and exclusion.
+  </div>
+</body>
+</html>

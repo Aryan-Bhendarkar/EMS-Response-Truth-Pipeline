@@ -97,7 +97,7 @@ cells = [
     code(
         "con.execute(\"\"\"",
         "    SELECT unit_type,",
-        "           approx_quantile(date_diff(\x27second\x27, response_dttm, on_scene_dttm)/60.0, 0.5) AS p50_min,",
+        "           quantile_cont(date_diff(\x27second\x27, response_dttm, on_scene_dttm)/60.0, 0.5) AS p50_min,",
         "           COUNT(*) AS n",
         "    FROM stg_unit_response",
         "    WHERE response_dttm IS NOT NULL AND on_scene_dttm IS NOT NULL AND NOT dq_response_after_onscene",

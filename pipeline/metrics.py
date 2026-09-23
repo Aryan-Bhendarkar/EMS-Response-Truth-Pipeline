@@ -124,8 +124,8 @@ def compute_m2_call_processing(con: duckdb.DuckDBPyConnection) -> list[dict]:
     rows = con.execute("""
         SELECT
             strftime(received_dttm, '%Y-%m') AS month,
-            approx_quantile(date_diff('second', received_dttm, dispatch_dttm) / 60.0, 0.5) AS p50_minutes,
-            approx_quantile(date_diff('second', received_dttm, dispatch_dttm) / 60.0, 0.9) AS p90_minutes,
+            quantile_cont(date_diff('second', received_dttm, dispatch_dttm) / 60.0, 0.5) AS p50_minutes,
+            quantile_cont(date_diff('second', received_dttm, dispatch_dttm) / 60.0, 0.9) AS p90_minutes,
             COUNT(*) AS n
         FROM fct_call
         WHERE received_dttm IS NOT NULL AND dispatch_dttm IS NOT NULL
@@ -149,8 +149,8 @@ def compute_m3_travel_time(con: duckdb.DuckDBPyConnection) -> list[dict]:
     rows = con.execute("""
         SELECT
             strftime(received_dttm, '%Y-%m') AS month,
-            approx_quantile(date_diff('second', response_dttm, on_scene_dttm) / 60.0, 0.5) AS p50_minutes,
-            approx_quantile(date_diff('second', response_dttm, on_scene_dttm) / 60.0, 0.9) AS p90_minutes,
+            quantile_cont(date_diff('second', response_dttm, on_scene_dttm) / 60.0, 0.5) AS p50_minutes,
+            quantile_cont(date_diff('second', response_dttm, on_scene_dttm) / 60.0, 0.9) AS p90_minutes,
             COUNT(*) AS n
         FROM stg_unit_response
         WHERE response_dttm IS NOT NULL AND on_scene_dttm IS NOT NULL AND NOT dq_response_after_onscene
@@ -170,8 +170,8 @@ def compute_m4_hospital(con: duckdb.DuckDBPyConnection, kpi_defs: dict) -> list[
             strftime(received_dttm, '%Y-%m') AS month,
             COUNT(*) AS n_transports,
             COUNT(*) FILTER (WHERE date_diff('second', hospital_dttm, available_dttm) / 60.0 > {standard}) AS n_over_standard,
-            approx_quantile(date_diff('second', hospital_dttm, available_dttm) / 60.0, 0.5) AS p50_minutes,
-            approx_quantile(date_diff('second', hospital_dttm, available_dttm) / 60.0, 0.9) AS p90_minutes,
+            quantile_cont(date_diff('second', hospital_dttm, available_dttm) / 60.0, 0.5) AS p50_minutes,
+            quantile_cont(date_diff('second', hospital_dttm, available_dttm) / 60.0, 0.9) AS p90_minutes,
             SUM(GREATEST(date_diff('second', hospital_dttm, available_dttm) / 60.0 - {standard}, 0)) / 60.0 AS ambulance_hours_lost
         FROM stg_unit_response
         WHERE hospital_dttm IS NOT NULL AND available_dttm IS NOT NULL AND NOT dq_hospital_after_available

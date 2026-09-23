@@ -143,9 +143,9 @@ cells = [
     code(
         "outliers = con.execute(\"\"\"",
         "    SELECT",
-        "        approx_quantile(date_diff('minute', CAST(received_dttm AS TIMESTAMP), CAST(dispatch_dttm AS TIMESTAMP)), 0.999)",
+        "        quantile_cont(date_diff('minute', CAST(received_dttm AS TIMESTAMP), CAST(dispatch_dttm AS TIMESTAMP)), 0.999)",
         "            AS p999_received_to_dispatch_min,",
-        "        approx_quantile(date_diff('minute', CAST(hospital_dttm AS TIMESTAMP), CAST(available_dttm AS TIMESTAMP)), 0.999)",
+        "        quantile_cont(date_diff('minute', CAST(hospital_dttm AS TIMESTAMP), CAST(available_dttm AS TIMESTAMP)), 0.999)",
         "            AS p999_hospital_to_available_min,",
         "        MAX(date_diff('minute', CAST(received_dttm AS TIMESTAMP), CAST(dispatch_dttm AS TIMESTAMP)))",
         "            AS max_received_to_dispatch_min,",

@@ -288,19 +288,28 @@ def profile_summary(con: duckdb.DuckDBPyConnection) -> dict:
     }
 
 
-def run_validation(run_ts: str, logger) -> dict:
+def run_validation(run_ts: str, logger, scope: str = "full backfill window (config/settings.yaml backfill.start_month..end_month)") -> dict:
     rules = load_rules()
     con = duckdb.connect()
     load_calls_view(con, run_ts)
 
     checks: list[CheckResult] = []
     checks.append(check_manifest_completeness(run_ts, con))
-    checks.append(check_schema(con, rules))
-    checks.append(check_rowid_uniqueness(con))
-    checks.extend(check_null_rates(con, rules))
-    checks.extend(check_timestamp_order(con, rules))
-    checks.append(check_priority_domain(con, rules))
-    checks.append(check_freshness(con, rules, logger))
+    schema_check = check_schema(con, rules)
+    checks.append(schema_check)
+
+    if schema_check.severity == "FAIL":
+        # Every remaining check queries specific columns - if the schema check
+        # already found one missing, running them would crash on an unbound
+        # column reference rather than reporting a clean FAIL. Stop here: the
+        # schema check alone is enough to fail the run (CLAUDE.md rule 8).
+        logger.warning("[validate] schema FAILed - skipping column-dependent checks")
+    else:
+        checks.append(check_rowid_uniqueness(con))
+        checks.extend(check_null_rates(con, rules))
+        checks.extend(check_timestamp_order(con, rules))
+        checks.append(check_priority_domain(con, rules))
+        checks.append(check_freshness(con, rules, logger))
 
     for c in checks:
         logger.info("[validate/%s] %s", c.rule_id, c.severity)
@@ -315,7 +324,7 @@ def run_validation(run_ts: str, logger) -> dict:
     report = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "run_ts": run_ts,
-        "scope": "full backfill window (config/settings.yaml backfill.start_month..end_month)",
+        "scope": scope,
         "overall_status": overall,
         "checks": [asdict(c) for c in checks],
         "profile": profile_summary(con),

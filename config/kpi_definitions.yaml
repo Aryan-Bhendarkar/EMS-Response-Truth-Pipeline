@@ -1,0 +1,66 @@
+# M1 candidate definitions. The official scorecard (measure 973) publishes no
+# methodology field (docs/source_map.md) - so which clock start / priority
+# rule / unit scope actually reproduces it is an empirical question, not an
+# assumption. pipeline/metrics.py computes every candidate below for every
+# backfilled month and compares each against the real kc49-udxn actual
+# (docs/decision_log.md, "which clock" entry, 2026-09-23). None is "confirmed"
+# until a real SF EMS Agency owner signs off - that flag is not decorative.
+
+target_minutes: 10
+target_pct: 0.90
+
+m1_candidate_definitions:
+  - id: dispatch_original_medic
+    label: "Clock=dispatch, priority=original in {3,E}, units=MEDIC only"
+    clock_start_field: dispatch_dttm
+    priority_field: original_priority
+    priority_values: ["3", "E"]
+    unit_scope: medic_only
+    owner: "Hypothesis - closest to SFFD's own framing (FY25 APR labels the measure \"SFFD calls\")"
+    confirmed_by_owner: false
+
+  - id: dispatch_final_ambulance
+    label: "Clock=dispatch, priority=final=3, units=MEDIC+PRIVATE"
+    clock_start_field: dispatch_dttm
+    priority_field: final_priority
+    priority_values: ["3"]
+    unit_scope: ambulance
+    owner: "Hypothesis - SF EMS Agency regulator framing (includes private ambulances)"
+    confirmed_by_owner: false
+
+  - id: dispatch_ctg_any_responder
+    label: "Clock=dispatch, call_type_group=Potentially Life-Threatening, units=any"
+    clock_start_field: dispatch_dttm
+    priority_field: call_type_group
+    priority_values: ["Potentially Life-Threatening"]
+    unit_scope: any_unit
+    owner: "This project's hypothesis - tests whether first RESPONDERS (engines/trucks too, not only ambulances) drive the official number, per docs/assumptions.md §4"
+    confirmed_by_owner: false
+
+  - id: received_final_ambulance
+    label: "Clock=911 call received, priority=final=3, units=MEDIC+PRIVATE"
+    clock_start_field: received_dttm
+    priority_field: final_priority
+    priority_values: ["3"]
+    unit_scope: ambulance
+    owner: "This project's hypothesis - what the caller actually experiences"
+    confirmed_by_owner: false
+
+  - id: received_original_medic
+    label: "Clock=911 call received, priority=original in {3,E}, units=MEDIC only"
+    clock_start_field: received_dttm
+    priority_field: original_priority
+    priority_values: ["3", "E"]
+    unit_scope: medic_only
+    owner: "This project's hypothesis - caller experience, SFFD-only"
+    confirmed_by_owner: false
+
+# M4 - hospital capacity. SF EMS Agency Policy 4000.1 (docs/decision_log.md,
+# 2026-09-23): two standards exist; only the turnaround one is measurable here.
+m4_hospital_standard:
+  turnaround_minutes: 30
+  turnaround_target_pct: 0.90
+  offload_minutes: 20
+  offload_target_pct: 0.90
+  offload_measurable_from_this_dataset: false
+  offload_blocker: "APOT-1 requires a hospital-EHR signature timestamp not present in nuek-vuh3 (docs/decision_log.md)"

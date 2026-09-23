@@ -1,0 +1,1087 @@
+{
+  "target_minutes": 10,
+  "target_pct": 0.9,
+  "official_scorecard_by_month": {
+    "2014-03": 0.84906231,
+    "2014-04": 0.88655701,
+    "2014-05": 0.77476299,
+    "2014-06": 0.79987453,
+    "2014-07": 0.76074766,
+    "2014-08": 0.76702405,
+    "2014-09": 0.82558807,
+    "2014-10": 0.84007551,
+    "2014-11": 0.82644147,
+    "2014-12": 0.81012326,
+    "2015-01": 0.82915203,
+    "2015-02": 0.81557377,
+    "2015-03": 0.86462882,
+    "2015-04": 0.86560365,
+    "2015-05": 0.85275754,
+    "2015-06": 0.86708345,
+    "2015-07": 0.88641364,
+    "2015-08": 0.89567966,
+    "2015-09": 0.87469685,
+    "2015-10": 0.8874,
+    "2015-11": 0.8953,
+    "2015-12": 0.8801,
+    "2016-01": 0.8916,
+    "2016-02": 0.8772,
+    "2016-03": 0.8704,
+    "2016-04": 0.886,
+    "2016-05": 0.8991,
+    "2016-06": 0.9079,
+    "2016-07": 0.925,
+    "2016-08": 0.914,
+    "2016-09": 0.892,
+    "2016-10": 0.905,
+    "2016-11": 0.8901,
+    "2016-12": 0.8679,
+    "2017-01": 0.8929,
+    "2017-02": 0.9258,
+    "2017-03": 0.9437,
+    "2017-04": 0.9527,
+    "2017-05": 0.9489,
+    "2017-06": 0.9384,
+    "2017-07": 0.9478,
+    "2017-08": 0.9463,
+    "2017-09": 0.9305,
+    "2017-10": 0.9289,
+    "2017-11": 0.9357,
+    "2017-12": 0.924,
+    "2018-01": 0.9294,
+    "2018-02": 0.9318,
+    "2018-03": 0.9306,
+    "2018-04": 0.9395,
+    "2018-05": 0.9265,
+    "2018-06": 0.9335,
+    "2018-07": 0.9373,
+    "2018-08": 0.9277,
+    "2018-09": 0.918,
+    "2018-10": 0.9076,
+    "2018-11": 0.9242,
+    "2018-12": 0.9286,
+    "2019-01": 0.9367,
+    "2019-02": 0.93,
+    "2019-03": 0.9179,
+    "2019-04": 0.9336,
+    "2019-05": 0.9317,
+    "2019-06": 0.9267,
+    "2019-07": 0.9413,
+    "2019-08": 0.9265,
+    "2019-09": 0.9023,
+    "2019-10": 0.9117,
+    "2019-11": 0.924,
+    "2019-12": 0.9038,
+    "2020-01": 0.934,
+    "2020-02": 0.9065,
+    "2020-03": 0.9259,
+    "2020-04": 0.9338,
+    "2020-05": 0.9296,
+    "2020-06": 0.9274,
+    "2020-07": 0.9188,
+    "2020-08": 0.9162,
+    "2020-09": 0.9249,
+    "2020-10": 0.9165,
+    "2020-11": 0.9301,
+    "2020-12": 0.9042,
+    "2021-01": 0.9052,
+    "2021-02": 0.9041,
+    "2021-03": 0.9076,
+    "2021-04": 0.8984,
+    "2021-05": 0.8921,
+    "2021-06": 0.8804,
+    "2021-07": 0.8779,
+    "2021-08": 0.8484,
+    "2021-09": 0.8611,
+    "2021-10": 0.8527,
+    "2021-11": 0.8746,
+    "2021-12": 0.8344,
+    "2022-01": 0.8347,
+    "2022-02": 0.8852,
+    "2022-03": 0.8747,
+    "2022-04": 0.8622,
+    "2022-05": 0.8451,
+    "2022-06": 0.8692,
+    "2022-07": 0.8867,
+    "2022-08": 0.844,
+    "2022-09": 0.865,
+    "2022-10": 0.899,
+    "2022-11": 0.8839,
+    "2022-12": 0.8652,
+    "2023-01": 0.88,
+    "2023-02": 0.8669,
+    "2023-03": 0.8627,
+    "2023-04": 0.8685,
+    "2023-05": 0.8917,
+    "2023-06": 0.9029,
+    "2023-07": 0.9047,
+    "2023-08": 0.8784,
+    "2023-09": 0.8711,
+    "2023-10": 0.8647,
+    "2023-11": 0.8914,
+    "2023-12": 0.8349,
+    "2024-01": 0.8358,
+    "2024-02": 0.871,
+    "2024-03": 0.8814,
+    "2024-04": 0.861,
+    "2024-05": 0.8479,
+    "2024-06": 0.855,
+    "2024-07": 0.8637,
+    "2024-08": 0.8577,
+    "2024-09": 0.8286,
+    "2024-10": 0.84,
+    "2024-11": 0.87,
+    "2024-12": 0.84,
+    "2025-01": 0.836,
+    "2025-02": 0.847,
+    "2025-03": 0.879,
+    "2025-04": 0.89,
+    "2025-05": 0.879,
+    "2025-06": 0.89,
+    "2025-07": 0.88,
+    "2025-08": 0.88,
+    "2025-09": 0.882,
+    "2025-10": 0.86,
+    "2025-11": 0.88,
+    "2025-12": 0.85,
+    "2026-01": 0.863,
+    "2026-02": 0.873,
+    "2026-03": 0.875,
+    "2026-04": 0.885,
+    "2026-05": 0.868,
+    "2026-06": 0.884
+  },
+  "m1_definitions": [
+    {
+      "id": "dispatch_original_medic",
+      "label": "Clock=dispatch, priority=original in {3,E}, units=MEDIC only",
+      "clock_start_field": "dispatch_dttm",
+      "priority_field": "original_priority",
+      "priority_values": [
+        "3",
+        "E"
+      ],
+      "unit_scope": "medic_only",
+      "owner": "Hypothesis - closest to SFFD's own framing (FY25 APR labels the measure \"SFFD calls\")",
+      "confirmed_by_owner": false
+    },
+    {
+      "id": "dispatch_final_ambulance",
+      "label": "Clock=dispatch, priority=final=3, units=MEDIC+PRIVATE",
+      "clock_start_field": "dispatch_dttm",
+      "priority_field": "final_priority",
+      "priority_values": [
+        "3"
+      ],
+      "unit_scope": "ambulance",
+      "owner": "Hypothesis - SF EMS Agency regulator framing (includes private ambulances)",
+      "confirmed_by_owner": false
+    },
+    {
+      "id": "dispatch_ctg_any_responder",
+      "label": "Clock=dispatch, call_type_group=Potentially Life-Threatening, units=any",
+      "clock_start_field": "dispatch_dttm",
+      "priority_field": "call_type_group",
+      "priority_values": [
+        "Potentially Life-Threatening"
+      ],
+      "unit_scope": "any_unit",
+      "owner": "This project's hypothesis - tests whether first RESPONDERS (engines/trucks too, not only ambulances) drive the official number, per docs/assumptions.md \u00a74",
+      "confirmed_by_owner": false
+    },
+    {
+      "id": "received_final_ambulance",
+      "label": "Clock=911 call received, priority=final=3, units=MEDIC+PRIVATE",
+      "clock_start_field": "received_dttm",
+      "priority_field": "final_priority",
+      "priority_values": [
+        "3"
+      ],
+      "unit_scope": "ambulance",
+      "owner": "This project's hypothesis - what the caller actually experiences",
+      "confirmed_by_owner": false
+    },
+    {
+      "id": "received_original_medic",
+      "label": "Clock=911 call received, priority=original in {3,E}, units=MEDIC only",
+      "clock_start_field": "received_dttm",
+      "priority_field": "original_priority",
+      "priority_values": [
+        "3",
+        "E"
+      ],
+      "unit_scope": "medic_only",
+      "owner": "This project's hypothesis - caller experience, SFFD-only",
+      "confirmed_by_owner": false
+    }
+  ],
+  "m1_kpi_monthly": [
+    {
+      "definition_id": "dispatch_original_medic",
+      "month": "2025-07",
+      "numerator": 2666,
+      "denominator": 3148,
+      "pct": 0.8469,
+      "excluded_no_arrival": 4160
+    },
+    {
+      "definition_id": "dispatch_original_medic",
+      "month": "2025-08",
+      "numerator": 2816,
+      "denominator": 3373,
+      "pct": 0.8349,
+      "excluded_no_arrival": 4312
+    },
+    {
+      "definition_id": "dispatch_original_medic",
+      "month": "2025-09",
+      "numerator": 2661,
+      "denominator": 3198,
+      "pct": 0.8321,
+      "excluded_no_arrival": 4162
+    },
+    {
+      "definition_id": "dispatch_original_medic",
+      "month": "2025-10",
+      "numerator": 2760,
+      "denominator": 3343,
+      "pct": 0.8256,
+      "excluded_no_arrival": 4495
+    },
+    {
+      "definition_id": "dispatch_original_medic",
+      "month": "2025-11",
+      "numerator": 2551,
+      "denominator": 3056,
+      "pct": 0.8348,
+      "excluded_no_arrival": 4343
+    },
+    {
+      "definition_id": "dispatch_original_medic",
+      "month": "2025-12",
+      "numerator": 2898,
+      "denominator": 3546,
+      "pct": 0.8173,
+      "excluded_no_arrival": 5176
+    },
+    {
+      "definition_id": "dispatch_original_medic",
+      "month": "2026-01",
+      "numerator": 2899,
+      "denominator": 3508,
+      "pct": 0.8264,
+      "excluded_no_arrival": 4561
+    },
+    {
+      "definition_id": "dispatch_original_medic",
+      "month": "2026-02",
+      "numerator": 2678,
+      "denominator": 3196,
+      "pct": 0.8379,
+      "excluded_no_arrival": 3860
+    },
+    {
+      "definition_id": "dispatch_original_medic",
+      "month": "2026-03",
+      "numerator": 3007,
+      "denominator": 3523,
+      "pct": 0.8535,
+      "excluded_no_arrival": 4339
+    },
+    {
+      "definition_id": "dispatch_original_medic",
+      "month": "2026-04",
+      "numerator": 2737,
+      "denominator": 3208,
+      "pct": 0.8532,
+      "excluded_no_arrival": 4028
+    },
+    {
+      "definition_id": "dispatch_original_medic",
+      "month": "2026-05",
+      "numerator": 2841,
+      "denominator": 3381,
+      "pct": 0.8403,
+      "excluded_no_arrival": 4176
+    },
+    {
+      "definition_id": "dispatch_original_medic",
+      "month": "2026-06",
+      "numerator": 2781,
+      "denominator": 3249,
+      "pct": 0.856,
+      "excluded_no_arrival": 4056
+    },
+    {
+      "definition_id": "dispatch_final_ambulance",
+      "month": "2025-07",
+      "numerator": 4146,
+      "denominator": 4914,
+      "pct": 0.8437,
+      "excluded_no_arrival": 3435
+    },
+    {
+      "definition_id": "dispatch_final_ambulance",
+      "month": "2025-08",
+      "numerator": 4255,
+      "denominator": 5118,
+      "pct": 0.8314,
+      "excluded_no_arrival": 3542
+    },
+    {
+      "definition_id": "dispatch_final_ambulance",
+      "month": "2025-09",
+      "numerator": 4008,
+      "denominator": 4875,
+      "pct": 0.8222,
+      "excluded_no_arrival": 3558
+    },
+    {
+      "definition_id": "dispatch_final_ambulance",
+      "month": "2025-10",
+      "numerator": 4228,
+      "denominator": 5219,
+      "pct": 0.8101,
+      "excluded_no_arrival": 3709
+    },
+    {
+      "definition_id": "dispatch_final_ambulance",
+      "month": "2025-11",
+      "numerator": 3931,
+      "denominator": 4757,
+      "pct": 0.8264,
+      "excluded_no_arrival": 3579
+    },
+    {
+      "definition_id": "dispatch_final_ambulance",
+      "month": "2025-12",
+      "numerator": 4207,
+      "denominator": 5270,
+      "pct": 0.7983,
+      "excluded_no_arrival": 4412
+    },
+    {
+      "definition_id": "dispatch_final_ambulance",
+      "month": "2026-01",
+      "numerator": 4257,
+      "denominator": 5270,
+      "pct": 0.8078,
+      "excluded_no_arrival": 3780
+    },
+    {
+      "definition_id": "dispatch_final_ambulance",
+      "month": "2026-02",
+      "numerator": 3900,
+      "denominator": 4755,
+      "pct": 0.8202,
+      "excluded_no_arrival": 3258
+    },
+    {
+      "definition_id": "dispatch_final_ambulance",
+      "month": "2026-03",
+      "numerator": 4422,
+      "denominator": 5373,
+      "pct": 0.823,
+      "excluded_no_arrival": 3533
+    },
+    {
+      "definition_id": "dispatch_final_ambulance",
+      "month": "2026-04",
+      "numerator": 4081,
+      "denominator": 4898,
+      "pct": 0.8332,
+      "excluded_no_arrival": 3272
+    },
+    {
+      "definition_id": "dispatch_final_ambulance",
+      "month": "2026-05",
+      "numerator": 4267,
+      "denominator": 5165,
+      "pct": 0.8261,
+      "excluded_no_arrival": 3421
+    },
+    {
+      "definition_id": "dispatch_final_ambulance",
+      "month": "2026-06",
+      "numerator": 4062,
+      "denominator": 4857,
+      "pct": 0.8363,
+      "excluded_no_arrival": 3307
+    },
+    {
+      "definition_id": "dispatch_ctg_any_responder",
+      "month": "2025-07",
+      "numerator": 5449,
+      "denominator": 6431,
+      "pct": 0.8473,
+      "excluded_no_arrival": 252
+    },
+    {
+      "definition_id": "dispatch_ctg_any_responder",
+      "month": "2025-08",
+      "numerator": 5600,
+      "denominator": 6617,
+      "pct": 0.8463,
+      "excluded_no_arrival": 291
+    },
+    {
+      "definition_id": "dispatch_ctg_any_responder",
+      "month": "2025-09",
+      "numerator": 5320,
+      "denominator": 6474,
+      "pct": 0.8217,
+      "excluded_no_arrival": 323
+    },
+    {
+      "definition_id": "dispatch_ctg_any_responder",
+      "month": "2025-10",
+      "numerator": 5612,
+      "denominator": 6769,
+      "pct": 0.8291,
+      "excluded_no_arrival": 244
+    },
+    {
+      "definition_id": "dispatch_ctg_any_responder",
+      "month": "2025-11",
+      "numerator": 5107,
+      "denominator": 6147,
+      "pct": 0.8308,
+      "excluded_no_arrival": 226
+    },
+    {
+      "definition_id": "dispatch_ctg_any_responder",
+      "month": "2025-12",
+      "numerator": 5530,
+      "denominator": 6584,
+      "pct": 0.8399,
+      "excluded_no_arrival": 213
+    },
+    {
+      "definition_id": "dispatch_ctg_any_responder",
+      "month": "2026-01",
+      "numerator": 5685,
+      "denominator": 6753,
+      "pct": 0.8418,
+      "excluded_no_arrival": 234
+    },
+    {
+      "definition_id": "dispatch_ctg_any_responder",
+      "month": "2026-02",
+      "numerator": 5070,
+      "denominator": 6119,
+      "pct": 0.8286,
+      "excluded_no_arrival": 243
+    },
+    {
+      "definition_id": "dispatch_ctg_any_responder",
+      "month": "2026-03",
+      "numerator": 5878,
+      "denominator": 6961,
+      "pct": 0.8444,
+      "excluded_no_arrival": 306
+    },
+    {
+      "definition_id": "dispatch_ctg_any_responder",
+      "month": "2026-04",
+      "numerator": 5424,
+      "denominator": 6392,
+      "pct": 0.8486,
+      "excluded_no_arrival": 255
+    },
+    {
+      "definition_id": "dispatch_ctg_any_responder",
+      "month": "2026-05",
+      "numerator": 5556,
+      "denominator": 6619,
+      "pct": 0.8394,
+      "excluded_no_arrival": 279
+    },
+    {
+      "definition_id": "dispatch_ctg_any_responder",
+      "month": "2026-06",
+      "numerator": 5244,
+      "denominator": 6302,
+      "pct": 0.8321,
+      "excluded_no_arrival": 244
+    },
+    {
+      "definition_id": "received_final_ambulance",
+      "month": "2025-07",
+      "numerator": 3294,
+      "denominator": 4914,
+      "pct": 0.6703,
+      "excluded_no_arrival": 3435
+    },
+    {
+      "definition_id": "received_final_ambulance",
+      "month": "2025-08",
+      "numerator": 3324,
+      "denominator": 5118,
+      "pct": 0.6495,
+      "excluded_no_arrival": 3542
+    },
+    {
+      "definition_id": "received_final_ambulance",
+      "month": "2025-09",
+      "numerator": 3190,
+      "denominator": 4875,
+      "pct": 0.6544,
+      "excluded_no_arrival": 3558
+    },
+    {
+      "definition_id": "received_final_ambulance",
+      "month": "2025-10",
+      "numerator": 3394,
+      "denominator": 5219,
+      "pct": 0.6503,
+      "excluded_no_arrival": 3709
+    },
+    {
+      "definition_id": "received_final_ambulance",
+      "month": "2025-11",
+      "numerator": 3138,
+      "denominator": 4757,
+      "pct": 0.6597,
+      "excluded_no_arrival": 3579
+    },
+    {
+      "definition_id": "received_final_ambulance",
+      "month": "2025-12",
+      "numerator": 3293,
+      "denominator": 5270,
+      "pct": 0.6249,
+      "excluded_no_arrival": 4412
+    },
+    {
+      "definition_id": "received_final_ambulance",
+      "month": "2026-01",
+      "numerator": 3311,
+      "denominator": 5270,
+      "pct": 0.6283,
+      "excluded_no_arrival": 3780
+    },
+    {
+      "definition_id": "received_final_ambulance",
+      "month": "2026-02",
+      "numerator": 3029,
+      "denominator": 4755,
+      "pct": 0.637,
+      "excluded_no_arrival": 3258
+    },
+    {
+      "definition_id": "received_final_ambulance",
+      "month": "2026-03",
+      "numerator": 3518,
+      "denominator": 5373,
+      "pct": 0.6548,
+      "excluded_no_arrival": 3533
+    },
+    {
+      "definition_id": "received_final_ambulance",
+      "month": "2026-04",
+      "numerator": 3284,
+      "denominator": 4898,
+      "pct": 0.6705,
+      "excluded_no_arrival": 3272
+    },
+    {
+      "definition_id": "received_final_ambulance",
+      "month": "2026-05",
+      "numerator": 3451,
+      "denominator": 5165,
+      "pct": 0.6682,
+      "excluded_no_arrival": 3421
+    },
+    {
+      "definition_id": "received_final_ambulance",
+      "month": "2026-06",
+      "numerator": 3219,
+      "denominator": 4857,
+      "pct": 0.6628,
+      "excluded_no_arrival": 3307
+    },
+    {
+      "definition_id": "received_original_medic",
+      "month": "2025-07",
+      "numerator": 2099,
+      "denominator": 3148,
+      "pct": 0.6668,
+      "excluded_no_arrival": 4160
+    },
+    {
+      "definition_id": "received_original_medic",
+      "month": "2025-08",
+      "numerator": 2194,
+      "denominator": 3373,
+      "pct": 0.6505,
+      "excluded_no_arrival": 4312
+    },
+    {
+      "definition_id": "received_original_medic",
+      "month": "2025-09",
+      "numerator": 2094,
+      "denominator": 3198,
+      "pct": 0.6548,
+      "excluded_no_arrival": 4162
+    },
+    {
+      "definition_id": "received_original_medic",
+      "month": "2025-10",
+      "numerator": 2188,
+      "denominator": 3343,
+      "pct": 0.6545,
+      "excluded_no_arrival": 4495
+    },
+    {
+      "definition_id": "received_original_medic",
+      "month": "2025-11",
+      "numerator": 1999,
+      "denominator": 3056,
+      "pct": 0.6541,
+      "excluded_no_arrival": 4343
+    },
+    {
+      "definition_id": "received_original_medic",
+      "month": "2025-12",
+      "numerator": 2225,
+      "denominator": 3546,
+      "pct": 0.6275,
+      "excluded_no_arrival": 5176
+    },
+    {
+      "definition_id": "received_original_medic",
+      "month": "2026-01",
+      "numerator": 2254,
+      "denominator": 3508,
+      "pct": 0.6425,
+      "excluded_no_arrival": 4561
+    },
+    {
+      "definition_id": "received_original_medic",
+      "month": "2026-02",
+      "numerator": 2053,
+      "denominator": 3196,
+      "pct": 0.6424,
+      "excluded_no_arrival": 3860
+    },
+    {
+      "definition_id": "received_original_medic",
+      "month": "2026-03",
+      "numerator": 2358,
+      "denominator": 3523,
+      "pct": 0.6693,
+      "excluded_no_arrival": 4339
+    },
+    {
+      "definition_id": "received_original_medic",
+      "month": "2026-04",
+      "numerator": 2180,
+      "denominator": 3208,
+      "pct": 0.6796,
+      "excluded_no_arrival": 4028
+    },
+    {
+      "definition_id": "received_original_medic",
+      "month": "2026-05",
+      "numerator": 2256,
+      "denominator": 3381,
+      "pct": 0.6673,
+      "excluded_no_arrival": 4176
+    },
+    {
+      "definition_id": "received_original_medic",
+      "month": "2026-06",
+      "numerator": 2200,
+      "denominator": 3249,
+      "pct": 0.6771,
+      "excluded_no_arrival": 4056
+    }
+  ],
+  "m1_reconciliation": {
+    "dispatch_original_medic": {
+      "months_compared": 12,
+      "mean_absolute_gap": 0.0351
+    },
+    "dispatch_final_ambulance": {
+      "months_compared": 12,
+      "mean_absolute_gap": 0.0501
+    },
+    "dispatch_ctg_any_responder": {
+      "months_compared": 12,
+      "mean_absolute_gap": 0.0358
+    },
+    "received_final_ambulance": {
+      "months_compared": 12,
+      "mean_absolute_gap": 0.2208
+    },
+    "received_original_medic": {
+      "months_compared": 12,
+      "mean_absolute_gap": 0.2161
+    }
+  },
+  "m1_best_fitting_definition": "dispatch_original_medic",
+  "m2_call_processing_p50_p90": [
+    {
+      "month": "2025-07",
+      "p50_minutes": 2.3,
+      "p90_minutes": 4.9,
+      "n": 14911
+    },
+    {
+      "month": "2025-08",
+      "p50_minutes": 2.2,
+      "p90_minutes": 4.8,
+      "n": 15363
+    },
+    {
+      "month": "2025-09",
+      "p50_minutes": 2.2,
+      "p90_minutes": 4.7,
+      "n": 15268
+    },
+    {
+      "month": "2025-10",
+      "p50_minutes": 2.2,
+      "p90_minutes": 4.7,
+      "n": 15659
+    },
+    {
+      "month": "2025-11",
+      "p50_minutes": 2.2,
+      "p90_minutes": 4.7,
+      "n": 14544
+    },
+    {
+      "month": "2025-12",
+      "p50_minutes": 2.3,
+      "p90_minutes": 4.9,
+      "n": 16340
+    },
+    {
+      "month": "2026-01",
+      "p50_minutes": 2.2,
+      "p90_minutes": 4.8,
+      "n": 15723
+    },
+    {
+      "month": "2026-02",
+      "p50_minutes": 2.3,
+      "p90_minutes": 4.9,
+      "n": 14354
+    },
+    {
+      "month": "2026-03",
+      "p50_minutes": 2.3,
+      "p90_minutes": 5.0,
+      "n": 15633
+    },
+    {
+      "month": "2026-04",
+      "p50_minutes": 2.2,
+      "p90_minutes": 4.8,
+      "n": 14666
+    },
+    {
+      "month": "2026-05",
+      "p50_minutes": 2.2,
+      "p90_minutes": 5.0,
+      "n": 15358
+    },
+    {
+      "month": "2026-06",
+      "p50_minutes": 2.2,
+      "p90_minutes": 4.9,
+      "n": 14676
+    }
+  ],
+  "m3_travel_time_p50_p90": [
+    {
+      "month": "2025-07",
+      "p50_minutes": 7.2,
+      "p90_minutes": 17.0,
+      "n": 9025
+    },
+    {
+      "month": "2025-08",
+      "p50_minutes": 7.3,
+      "p90_minutes": 17.5,
+      "n": 9359
+    },
+    {
+      "month": "2025-09",
+      "p50_minutes": 7.5,
+      "p90_minutes": 18.0,
+      "n": 9075
+    },
+    {
+      "month": "2025-10",
+      "p50_minutes": 7.6,
+      "p90_minutes": 18.1,
+      "n": 9543
+    },
+    {
+      "month": "2025-11",
+      "p50_minutes": 7.4,
+      "p90_minutes": 17.5,
+      "n": 8662
+    },
+    {
+      "month": "2025-12",
+      "p50_minutes": 7.7,
+      "p90_minutes": 18.1,
+      "n": 9576
+    },
+    {
+      "month": "2026-01",
+      "p50_minutes": 7.5,
+      "p90_minutes": 17.6,
+      "n": 9445
+    },
+    {
+      "month": "2026-02",
+      "p50_minutes": 7.6,
+      "p90_minutes": 17.8,
+      "n": 8818
+    },
+    {
+      "month": "2026-03",
+      "p50_minutes": 7.3,
+      "p90_minutes": 17.1,
+      "n": 9576
+    },
+    {
+      "month": "2026-04",
+      "p50_minutes": 7.2,
+      "p90_minutes": 16.8,
+      "n": 8971
+    },
+    {
+      "month": "2026-05",
+      "p50_minutes": 7.3,
+      "p90_minutes": 17.2,
+      "n": 9655
+    },
+    {
+      "month": "2026-06",
+      "p50_minutes": 7.4,
+      "p90_minutes": 17.3,
+      "n": 9137
+    }
+  ],
+  "m4_hospital_turnaround": [
+    {
+      "month": "2025-07",
+      "n_transports": 6913,
+      "n_over_standard": 5702,
+      "pct_over_standard": 0.8248,
+      "p50_minutes": 41.0,
+      "p90_minutes": 64.1,
+      "ambulance_hours_lost": 1706.8
+    },
+    {
+      "month": "2025-08",
+      "n_transports": 7110,
+      "n_over_standard": 5850,
+      "pct_over_standard": 0.8228,
+      "p50_minutes": 40.9,
+      "p90_minutes": 64.3,
+      "ambulance_hours_lost": 1737.5
+    },
+    {
+      "month": "2025-09",
+      "n_transports": 6983,
+      "n_over_standard": 5686,
+      "pct_over_standard": 0.8143,
+      "p50_minutes": 40.2,
+      "p90_minutes": 63.4,
+      "ambulance_hours_lost": 1669.0
+    },
+    {
+      "month": "2025-10",
+      "n_transports": 7241,
+      "n_over_standard": 5983,
+      "pct_over_standard": 0.8263,
+      "p50_minutes": 41.4,
+      "p90_minutes": 65.2,
+      "ambulance_hours_lost": 1832.7
+    },
+    {
+      "month": "2025-11",
+      "n_transports": 6585,
+      "n_over_standard": 5380,
+      "pct_over_standard": 0.817,
+      "p50_minutes": 41.3,
+      "p90_minutes": 63.6,
+      "ambulance_hours_lost": 1617.7
+    },
+    {
+      "month": "2025-12",
+      "n_transports": 7425,
+      "n_over_standard": 6258,
+      "pct_over_standard": 0.8428,
+      "p50_minutes": 42.6,
+      "p90_minutes": 68.0,
+      "ambulance_hours_lost": 2062.9
+    },
+    {
+      "month": "2026-01",
+      "n_transports": 7429,
+      "n_over_standard": 6270,
+      "pct_over_standard": 0.844,
+      "p50_minutes": 43.5,
+      "p90_minutes": 67.9,
+      "ambulance_hours_lost": 2098.4
+    },
+    {
+      "month": "2026-02",
+      "n_transports": 6945,
+      "n_over_standard": 5927,
+      "pct_over_standard": 0.8534,
+      "p50_minutes": 43.7,
+      "p90_minutes": 68.3,
+      "ambulance_hours_lost": 2016.2
+    },
+    {
+      "month": "2026-03",
+      "n_transports": 7350,
+      "n_over_standard": 6192,
+      "pct_over_standard": 0.8424,
+      "p50_minutes": 42.3,
+      "p90_minutes": 66.9,
+      "ambulance_hours_lost": 1959.5
+    },
+    {
+      "month": "2026-04",
+      "n_transports": 7048,
+      "n_over_standard": 5912,
+      "pct_over_standard": 0.8388,
+      "p50_minutes": 41.9,
+      "p90_minutes": 64.3,
+      "ambulance_hours_lost": 1762.5
+    },
+    {
+      "month": "2026-05",
+      "n_transports": 7353,
+      "n_over_standard": 6015,
+      "pct_over_standard": 0.818,
+      "p50_minutes": 41.1,
+      "p90_minutes": 63.1,
+      "ambulance_hours_lost": 1761.5
+    },
+    {
+      "month": "2026-06",
+      "n_transports": 6816,
+      "n_over_standard": 5602,
+      "pct_over_standard": 0.8219,
+      "p50_minutes": 40.8,
+      "p90_minutes": 64.3,
+      "ambulance_hours_lost": 1671.7
+    }
+  ],
+  "m4_standard": {
+    "turnaround_minutes": 30,
+    "turnaround_target_pct": 0.9,
+    "offload_minutes": 20,
+    "offload_target_pct": 0.9,
+    "offload_measurable_from_this_dataset": false,
+    "offload_blocker": "APOT-1 requires a hospital-EHR signature timestamp not present in nuek-vuh3 (docs/decision_log.md)"
+  },
+  "m5_definition_gap": [
+    {
+      "month": "2025-07",
+      "m1_received_clock_pct": 0.6703,
+      "m1_dispatch_clock_pct": 0.8437,
+      "clock_gap_points": 17.3,
+      "official_pct": 0.88,
+      "official_vs_dispatch_gap_points": 3.6
+    },
+    {
+      "month": "2025-08",
+      "m1_received_clock_pct": 0.6495,
+      "m1_dispatch_clock_pct": 0.8314,
+      "clock_gap_points": 18.2,
+      "official_pct": 0.88,
+      "official_vs_dispatch_gap_points": 4.9
+    },
+    {
+      "month": "2025-09",
+      "m1_received_clock_pct": 0.6544,
+      "m1_dispatch_clock_pct": 0.8222,
+      "clock_gap_points": 16.8,
+      "official_pct": 0.882,
+      "official_vs_dispatch_gap_points": 6.0
+    },
+    {
+      "month": "2025-10",
+      "m1_received_clock_pct": 0.6503,
+      "m1_dispatch_clock_pct": 0.8101,
+      "clock_gap_points": 16.0,
+      "official_pct": 0.86,
+      "official_vs_dispatch_gap_points": 5.0
+    },
+    {
+      "month": "2025-11",
+      "m1_received_clock_pct": 0.6597,
+      "m1_dispatch_clock_pct": 0.8264,
+      "clock_gap_points": 16.7,
+      "official_pct": 0.88,
+      "official_vs_dispatch_gap_points": 5.4
+    },
+    {
+      "month": "2025-12",
+      "m1_received_clock_pct": 0.6249,
+      "m1_dispatch_clock_pct": 0.7983,
+      "clock_gap_points": 17.3,
+      "official_pct": 0.85,
+      "official_vs_dispatch_gap_points": 5.2
+    },
+    {
+      "month": "2026-01",
+      "m1_received_clock_pct": 0.6283,
+      "m1_dispatch_clock_pct": 0.8078,
+      "clock_gap_points": 17.9,
+      "official_pct": 0.863,
+      "official_vs_dispatch_gap_points": 5.5
+    },
+    {
+      "month": "2026-02",
+      "m1_received_clock_pct": 0.637,
+      "m1_dispatch_clock_pct": 0.8202,
+      "clock_gap_points": 18.3,
+      "official_pct": 0.873,
+      "official_vs_dispatch_gap_points": 5.3
+    },
+    {
+      "month": "2026-03",
+      "m1_received_clock_pct": 0.6548,
+      "m1_dispatch_clock_pct": 0.823,
+      "clock_gap_points": 16.8,
+      "official_pct": 0.875,
+      "official_vs_dispatch_gap_points": 5.2
+    },
+    {
+      "month": "2026-04",
+      "m1_received_clock_pct": 0.6705,
+      "m1_dispatch_clock_pct": 0.8332,
+      "clock_gap_points": 16.3,
+      "official_pct": 0.885,
+      "official_vs_dispatch_gap_points": 5.2
+    },
+    {
+      "month": "2026-05",
+      "m1_received_clock_pct": 0.6682,
+      "m1_dispatch_clock_pct": 0.8261,
+      "clock_gap_points": 15.8,
+      "official_pct": 0.868,
+      "official_vs_dispatch_gap_points": 4.2
+    },
+    {
+      "month": "2026-06",
+      "m1_received_clock_pct": 0.6628,
+      "m1_dispatch_clock_pct": 0.8363,
+      "clock_gap_points": 17.4,
+      "official_pct": 0.884,
+      "official_vs_dispatch_gap_points": 4.8
+    }
+  ]
+}

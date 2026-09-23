@@ -96,6 +96,23 @@ here.** Phase 4's reconciliation exercise will test both definitions (ambulance-
 any-first-responder) against the official scorecard, the same way it tests the clock-start
 question — see `docs/decision_log.md` (2026-09-23, "which clock" entry).
 
+## 5b. M1 denominator excludes calls with no recorded on-scene arrival
+
+**Rule:** `pipeline/metrics.py`'s M1 denominator is *eligible calls where the relevant unit
+scope actually has an on-scene timestamp* — calls that were cancelled, went "Unable to
+Locate," or otherwise never got a recorded arrival are **excluded from the ratio**, not
+counted as automatic misses. Each month's `excluded_no_arrival` count is written to
+`outputs/metrics.json` / `outputs/kpi_monthly.csv` alongside the ratio — visible, not hidden.
+
+**Why:** you cannot measure "time to arrival" for a call nothing ever arrived at. Counting
+these as automatic failures would conflate two different problems (slow response vs. no
+response) into one number, and would make every candidate M1 definition's reconstructed
+value implausibly low relative to the published ~85-88% figures, since ~20% of unit-responses
+have no `on_scene_dttm` (`docs/assumptions.md` §2).
+
+**Owner:** this is this project's own modeling choice (not an EMS Agency-confirmed rule) —
+flagged as an assumption a real engagement would confirm with the measure's actual owner.
+
 ## 5. Hospital hand-over standard — see `docs/decision_log.md`
 
 Already logged as a decision (2026-09-23): the raw data supports the 30-minute turnaround

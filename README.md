@@ -65,15 +65,22 @@ source ~/.venvs/sf-ems-pipeline/bin/activate
 pip install -r requirements.txt
 cp config/.env.example .env   # fill in SOCRATA_APP_TOKEN (optional; raises the API rate limit)
 
-# One-time: pull the 12-month analysis window (config/settings.yaml). Takes ~5 min
-# without an app token (anonymous Socrata rate limit); faster with one configured.
-python -m pipeline.extract --backfill
-python -m pipeline.load --calls-run-ts <run_ts printed above> --scorecard-run-ts <run_ts>
-
-# One command: extract -> validate -> load -> transform -> metrics -> report -> save,
-# for a single month or an incremental lookback window
+# Quickstart: one command, extract -> validate -> load -> transform -> metrics
+# -> report -> save, for a single month or an incremental lookback window.
+# Self-contained - no separate backfill needed first.
 python run_pipeline.py --month 2026-07
 python run_pipeline.py --since 3
+
+# To reproduce the full 12-month reconciliation story (outputs/evidence_table.md,
+# notebooks 02-04): pull and load the whole analysis window once. Takes ~5 min
+# without an app token (anonymous Socrata rate limit); faster with one configured.
+# Each extract prints a run_id (e.g. "run_id=20260923T163957Z") - copy it into
+# the load command that follows.
+python -m pipeline.extract --backfill
+python -m pipeline.extract --scorecard
+python -m pipeline.validate --run-ts <run_id from --backfill>   # writes outputs/validation_report.json
+python -m pipeline.load --calls-run-ts <run_id from --backfill> --scorecard-run-ts <run_id from --scorecard>
+python -m pipeline.metrics   # writes outputs/metrics.json, outputs/kpi_monthly.csv
 
 # Failure-handling demos (see GATE2_DATA_READINESS.md for what each one proves)
 python run_pipeline.py --month 2026-05 --chaos missing_column       # FAIL, publishes nothing
@@ -123,7 +130,7 @@ publish. Full recommendation: `docs/decision_memo.md`.
 ├── pipeline/
 │   ├── extract.py  validate.py  load.py  metrics.py  report.py  save.py  chaos.py  logging_utils.py
 │   └── transform/  010_stg_unit_response.sql  020_fct_unit_event.sql  030_fct_call.sql
-├── notebooks/     01 (source discovery, see docs/source_map.md) · 02_profile_validate ·
+├── notebooks/     01_source_discovery · 02_profile_validate ·
 │                  03_workflow_model · 04_metrics_reconciliation
 ├── tests/         test_validate.py  test_definitions.py  (24 hermetic tests)
 ├── data/          raw/ (gitignored, reproducible) · processed/ (gitignored DuckDB warehouse)

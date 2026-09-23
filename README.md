@@ -43,9 +43,13 @@ Full detail, ownership, grain and gaps: `docs/source_map.md` (added in Phase 1).
 ## Setup and run
 
 ```bash
-# Inside WSL2 (Ubuntu)
-python3 -m venv .venv
-source .venv/bin/activate
+# Inside WSL2 (Ubuntu). Clone/keep the repo wherever you like, including a
+# Windows-mounted drive (/mnt/c, /mnt/a, ...) — but create the venv itself on
+# the native Linux filesystem. Installing into a venv on a /mnt/* path is
+# 10-20x slower (WSL2's 9p/drvfs protocol is slow for the thousands of small
+# file writes pip does), so we point it at ~/.venvs instead.
+python3 -m venv ~/.venvs/sf-ems-pipeline
+source ~/.venvs/sf-ems-pipeline/bin/activate
 pip install -r requirements.txt
 cp config/.env.example .env   # fill in SOCRATA_APP_TOKEN (optional but recommended)
 

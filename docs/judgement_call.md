@@ -57,8 +57,9 @@ over the alternative, consistently, every month.
 *dispatch-to-scene* performance. It does not include the time between a caller dialing 911
 and a unit being dispatched — call-taking, triage, and queueing (M2: median 2.3 min, p90
 4.9 min). From the caller's actual experience — phone ringing to help arriving — compliance
-is **~15 points worse** than the published figure, every single month (`outputs/metrics.json`
-→ `m5_definition_gap`, `clock_gap_points`), not a one-off finding from a single month.
+is **worse than the published figure every single month** — a 17.1-point average gap over the
+full 12 months (`outputs/metrics.json` → `m5_definition_gap`, `clock_gap_points`), not a
+one-off finding from a single cherry-picked month.
 
 ## Why this is the judgement call, not just a finding
 
@@ -72,5 +73,5 @@ slightly different unit-inclusion rule at the margins).
 **Recommendation to the client (see `docs/decision_memo.md`):** publish both numbers. The
 dispatch-clock figure is what the operational team controls and should keep as the internal
 performance measure. The received-clock figure is what the public and press actually
-experience and should be published alongside it, with the ~15-point gap explained as
+experience and should be published alongside it, with the ~17-point gap explained as
 call-processing + queueing time — currently invisible in the number SF publishes today.

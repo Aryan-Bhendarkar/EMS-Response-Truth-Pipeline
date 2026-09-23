@@ -1,0 +1,190 @@
+{
+  "generated_at": "2026-09-23T17:10:40.216135+00:00",
+  "run_ts": "20260923T163957Z",
+  "scope": "full backfill window (config/settings.yaml backfill.start_month..end_month)",
+  "overall_status": "WARN",
+  "checks": [
+    {
+      "rule_id": "manifest_completeness",
+      "severity": "PASS",
+      "description": "Every extracted month's manifest.json must say complete=true, and the row count it recorded must match what's actually readable on disk.",
+      "metric": {
+        "months_found": 12,
+        "manifest_total_rows": 364873,
+        "actual_rows_on_disk": 364873,
+        "months_flagged_incomplete_at_extract": []
+      },
+      "action": "None."
+    },
+    {
+      "rule_id": "schema_required_columns",
+      "severity": "PASS",
+      "description": "Every column downstream SQL models depend on must be present in the raw pull.",
+      "metric": {
+        "required": 18,
+        "missing": []
+      },
+      "action": "None."
+    },
+    {
+      "rule_id": "rowid_uniqueness",
+      "severity": "PASS",
+      "description": "rowid (call_number-unit_id) is the primary key every load-time upsert relies on.",
+      "metric": {
+        "total_rows": 364873,
+        "distinct_rowid": 364873,
+        "duplicate_rows": 0
+      },
+      "action": "None."
+    },
+    {
+      "rule_id": "null_rate_response_dttm",
+      "severity": "WARN",
+      "description": "response_dttm should be populated for the large majority of rows; some nulls are expected and meaningful (e.g. cancelled calls), not a defect to silently drop.",
+      "metric": {
+        "field": "response_dttm",
+        "null_count": 9776,
+        "total": 364873,
+        "rate": 0.0268
+      },
+      "action": "Continue; excluded from metrics that require response_dttm, counted separately per brief Q4/Q9 (cancelled / unable-to-locate / genuinely-missing all fall here)."
+    },
+    {
+      "rule_id": "null_rate_on_scene_dttm",
+      "severity": "WARN",
+      "description": "on_scene_dttm should be populated for the large majority of rows; some nulls are expected and meaningful (e.g. cancelled calls), not a defect to silently drop.",
+      "metric": {
+        "field": "on_scene_dttm",
+        "null_count": 79299,
+        "total": 364873,
+        "rate": 0.2173
+      },
+      "action": "Continue; excluded from metrics that require on_scene_dttm, counted separately per brief Q4/Q9 (cancelled / unable-to-locate / genuinely-missing all fall here)."
+    },
+    {
+      "rule_id": "null_rate_call_type_group",
+      "severity": "WARN",
+      "description": "call_type_group should be populated for the large majority of rows; some nulls are expected and meaningful (e.g. cancelled calls), not a defect to silently drop.",
+      "metric": {
+        "field": "call_type_group",
+        "null_count": 8345,
+        "total": 364873,
+        "rate": 0.0229
+      },
+      "action": "Continue; excluded from metrics that require call_type_group, counted separately per brief Q4/Q9 (cancelled / unable-to-locate / genuinely-missing all fall here)."
+    },
+    {
+      "rule_id": "timestamp_order_dispatch_dttm_before_response_dttm",
+      "severity": "PASS",
+      "description": "dispatch_dttm must be at or before response_dttm whenever both are recorded \u2014 lifecycle events can't happen out of sequence.",
+      "metric": {
+        "pair": "dispatch_dttm_before_response_dttm",
+        "both_present": 355097,
+        "violations": 25,
+        "rate": 7e-05
+      },
+      "action": "None."
+    },
+    {
+      "rule_id": "timestamp_order_response_dttm_before_on_scene_dttm",
+      "severity": "PASS",
+      "description": "response_dttm must be at or before on_scene_dttm whenever both are recorded \u2014 lifecycle events can't happen out of sequence.",
+      "metric": {
+        "pair": "response_dttm_before_on_scene_dttm",
+        "both_present": 285574,
+        "violations": 17,
+        "rate": 6e-05
+      },
+      "action": "None."
+    },
+    {
+      "rule_id": "timestamp_order_on_scene_dttm_before_transport_dttm",
+      "severity": "PASS",
+      "description": "on_scene_dttm must be at or before transport_dttm whenever both are recorded \u2014 lifecycle events can't happen out of sequence.",
+      "metric": {
+        "pair": "on_scene_dttm_before_transport_dttm",
+        "both_present": 86991,
+        "violations": 14,
+        "rate": 0.000161
+      },
+      "action": "None."
+    },
+    {
+      "rule_id": "timestamp_order_transport_dttm_before_hospital_dttm",
+      "severity": "WARN",
+      "description": "transport_dttm must be at or before hospital_dttm whenever both are recorded \u2014 lifecycle events can't happen out of sequence.",
+      "metric": {
+        "pair": "transport_dttm_before_hospital_dttm",
+        "both_present": 85677,
+        "violations": 687,
+        "rate": 0.008018
+      },
+      "action": "Continue; rows where hospital_dttm < transport_dttm are excluded from interval metrics built on this pair and counted, per brief Q5 \u2014 not silently dropped from the dataset."
+    },
+    {
+      "rule_id": "timestamp_order_hospital_dttm_before_available_dttm",
+      "severity": "WARN",
+      "description": "hospital_dttm must be at or before available_dttm whenever both are recorded \u2014 lifecycle events can't happen out of sequence.",
+      "metric": {
+        "pair": "hospital_dttm_before_available_dttm",
+        "both_present": 85678,
+        "violations": 480,
+        "rate": 0.005602
+      },
+      "action": "Continue; rows where available_dttm < hospital_dttm are excluded from interval metrics built on this pair and counted, per brief Q5 \u2014 not silently dropped from the dataset."
+    },
+    {
+      "rule_id": "priority_domain",
+      "severity": "WARN",
+      "description": "original_priority mixes numeric Code 2/3 and letter determinant codes in one field (brief Q2) \u2014 this is a known, expected mix, not a defect, but the letter-code meanings are still unconfirmed by any owner. See docs/assumptions.md.",
+      "metric": {
+        "observed_value_counts": {
+          "3": 220137,
+          "2": 67033,
+          "A": 28445,
+          "E": 15557,
+          "1": 11787,
+          "B": 9124,
+          "C": 7993,
+          "": 4094,
+          "I": 654,
+          "T": 49
+        },
+        "unexpected_values": {}
+      },
+      "action": "Continue. Mapping documented in docs/assumptions.md as confirmed_by_owner=false."
+    },
+    {
+      "rule_id": "freshness",
+      "severity": "PASS",
+      "description": "The newest data_loaded_at across all pulled rows must be within 48h of now \u2014 but only for pulls whose own data extends near the present.",
+      "metric": {
+        "max_received_dttm": "2026-06-30 23:58:44",
+        "received_age_hours": 2033.2,
+        "threshold_hours": 48,
+        "note": "not applicable: this pull's most recent received_dttm is already older than the threshold, so it's a deliberate historical window (e.g. --backfill), not a current/incremental pull."
+      },
+      "action": "None \u2014 freshness vs. wall-clock time applies to --since/current-month pulls, not backfills."
+    }
+  ],
+  "profile": {
+    "unit_rows": 364873,
+    "distinct_calls": 182495,
+    "rows_per_call": 1.999,
+    "priority_changed_original_vs_final": 91244,
+    "unit_type_counts": {
+      "ENGINE": 113189,
+      "MEDIC": 100258,
+      "TRUCK": 38311,
+      "PRIVATE": 31970,
+      "CHIEF": 28244,
+      "CP": 22147,
+      "RESCUE CAPTAIN": 11224,
+      "BLS": 9766,
+      "SUPPORT": 4995,
+      "RESCUE SQUAD": 4584,
+      "INVESTIGATION": 177,
+      "AIRPORT": 8
+    }
+  }
+}

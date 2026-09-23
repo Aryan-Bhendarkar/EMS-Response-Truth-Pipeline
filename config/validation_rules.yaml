@@ -1,0 +1,66 @@
+# Validation thresholds. Never hard-coded in pipeline/validate.py (CLAUDE.md rule 3).
+#
+# Each null-rate / violation-rate rule has a warn_above and fail_above bound
+# (both are rates, 0-1). Below warn_above = PASS. Between warn_above and
+# fail_above = WARN, documented and counted, pipeline continues. At or above
+# fail_above = FAIL, pipeline stops (CLAUDE.md rule 8). Bounds were set after
+# profiling the real 12-month backfill (2025-07..2026-06) — see
+# notebooks/02_profile_validate.ipynb and docs/decision_log.md for the
+# observed baseline each bound is calibrated against.
+
+required_columns:
+  - call_number
+  - unit_id
+  - incident_number
+  - received_dttm
+  - entry_dttm
+  - dispatch_dttm
+  - response_dttm
+  - on_scene_dttm
+  - call_final_disposition
+  - available_dttm
+  - original_priority
+  - priority
+  - final_priority
+  - call_type_group
+  - unit_type
+  - rowid
+  - data_as_of
+  - data_loaded_at
+
+null_rate_thresholds:
+  # response_dttm: unit never acknowledged dispatch — should be rare.
+  response_dttm: { warn_above: 0.01, fail_above: 0.15 }
+  # on_scene_dttm: cancelled / unable-to-locate / genuinely missing all show up
+  # here (brief Q4) — expected to be a real, non-trivial minority.
+  on_scene_dttm: { warn_above: 0.05, fail_above: 0.40 }
+  # call_type_group: expected to be almost always populated.
+  call_type_group: { warn_above: 0.005, fail_above: 0.10 }
+
+timestamp_order_pairs:
+  # (earlier_field, later_field): earlier must be <= later when both are present.
+  - [dispatch_dttm, response_dttm]
+  - [response_dttm, on_scene_dttm]
+  - [on_scene_dttm, transport_dttm]
+  - [transport_dttm, hospital_dttm]
+  - [hospital_dttm, available_dttm]
+
+timestamp_order_violation_rate:
+  # Rate is violations / rows where both timestamps in the pair are present.
+  warn_above: 0.0005
+  fail_above: 0.01
+
+priority_domain:
+  # original_priority is known to mix two coding schemes (brief Q2). Not a
+  # defect to fix — a fact to document. Any value outside this set is WARN
+  # (new/unexpected code, needs the same owner review as the rest of the map).
+  expected_values: ["1", "2", "3", "A", "B", "C", "E", "I", "T", ""]
+
+freshness:
+  max_data_loaded_at_age_hours: 48
+
+outlier_p999_fields:
+  # Fields checked for extreme values beyond the 99.9th percentile (brief Q6).
+  # Not excluded from metrics — flagged for review only.
+  - received_dttm_to_dispatch_dttm_minutes
+  - hospital_dttm_to_available_dttm_minutes

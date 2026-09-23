@@ -4,3 +4,5 @@ duckdb>=1.0
 pyyaml>=6.0
 pytest>=8.0
 python-dotenv>=1.0
+jupyter>=1.0
+ipykernel>=6.29

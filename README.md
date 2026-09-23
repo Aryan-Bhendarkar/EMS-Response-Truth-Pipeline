@@ -1,7 +1,7 @@
 # EMS Response Truth Pipeline
 
 > SF 911 ambulance dispatch data → a validated, repeatable ambulance-response KPI.
-> FDE Data Foundations Assignment (Classes 4–8), Track C. Status: **Phase 2 — retrieval.**
+> FDE Data Foundations Assignment (Classes 4–8), Track C. Status: **Phase 3 — profiling & validation.**
 
 ## Problem
 
@@ -71,6 +71,12 @@ Every extract run proves completeness before saving anything: it asks the API fo
 under the same filter it's about to page through, and fails loudly (non-zero exit, logged) if the
 rows received don't match. Raw pages are saved untouched to
 `data/raw/<source>/run_ts=<timestamp>/`, never overwritten by later runs.
+
+```bash
+# Validate a pulled run (Phase 3 — implemented)
+python -m pipeline.validate --run-ts 20260923T163957Z
+# writes outputs/validation_report.json; PASS/WARN/FAIL per rule, non-zero exit on any FAIL
+```
 
 *(`run_pipeline.py` is added in Phase 5; this section will be kept accurate as the pipeline is built.)*
 

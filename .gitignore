@@ -30,5 +30,6 @@ logs/*
 .DS_Store
 Thumbs.db
 
-# Course material, not a project deliverable — repo will be public
-FDE_Assignment2.pdf
+# Claude Code project instructions - not part of the deliverable
+claude.md
+CLAUDE.md

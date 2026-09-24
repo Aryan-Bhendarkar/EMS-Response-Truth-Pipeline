@@ -117,7 +117,7 @@ A FAIL at the validate stage stops the run before anything is loaded or publishe
 - `outputs/_chaos/<scope>/` — chaos-run outputs (gitignored, never published)
 - `docs/decision_memo.md` — 1-page recommendation to the client
 - `docs/judgement_call.md` — the "which clock?" judgement call, with the reconciliation evidence
-- `docs/demo_script.md` — 3-5 minute demo walkthrough
+- `docs/demo_script.md` — 3-5 minute demo walkthrough (outline); `docs/loom_script.md` — verbatim recording script
 
 ## What decision this supports
 

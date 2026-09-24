@@ -1,7 +1,8 @@
 # Demo Script (3-5 minutes)
 
 > Walks the repo → runs the pipeline → shows one failure → explains the "which clock?"
-> judgement call. Timings are approximate.
+> judgement call. Timings are approximate. For a verbatim, screen-by-screen script to record
+> a Loom video from, see `docs/loom_script.md`.
 
 ## 0:00-0:30 — The problem
 

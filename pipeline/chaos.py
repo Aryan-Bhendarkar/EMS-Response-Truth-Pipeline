@@ -4,21 +4,44 @@ and safely (CLAUDE.md rule 8) instead of quietly publishing bad data.
 
 Each function mutates the first raw page written by this run and returns a
 one-line description of what it changed, logged by run_pipeline.py.
+
+Isolation: a chaos run never touches the production warehouse or the real
+KPI packs. run_pipeline.py copies data/processed/sf_ems.duckdb to a throwaway
+data/processed/chaos_<run_id>.duckdb (deleted when the run ends, pass or fail)
+and writes outputs to outputs/_chaos/<scope>/ (gitignored). Before this, a
+late_update run permanently wrote a fake available_dttm into the real
+warehouse (docs/review_findings.md A3).
+
+How to see the late_update demo: run
+    python run_pipeline.py --month 2026-02 --chaos late_update
+and read the "[pipeline/chaos:late_update] verify" log line. It is written
+from the throwaway warehouse right after the upsert and shows the amended
+rowid's available_dttm/data_loaded_at (the new, amended value - upsert, not
+append) and the raw_calls row count before vs after (unchanged for a month
+already in the warehouse - no duplicate row).
 """
 
 import json
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from typing import Optional
 
 from pipeline.extract import RAW_DATA_DIR
 
 
 def _first_page_path(run_ts: str, scope_dir: str) -> Path:
+    """First raw calls page written by this run for this scope."""
     d = RAW_DATA_DIR / "calls" / f"run_ts={run_ts}" / scope_dir
     pages = sorted(d.glob("page_*.json"))
     if not pages:
         raise FileNotFoundError(f"no raw pages found under {d}")
     return pages[0]
+
+
+def first_row_rowid(run_ts: str, scope_dir: str) -> Optional[str]:
+    """rowid of the first row on the first raw page - the row late_update amends."""
+    rows = json.loads(_first_page_path(run_ts, scope_dir).read_text(encoding="utf-8"))
+    return rows[0].get("rowid") if rows else None
 
 
 def inject_missing_column(run_ts: str, scope_dir: str) -> str:
@@ -78,9 +101,9 @@ def inject_truncated_pagination(run_ts: str, scope_dir: str) -> str:
 
 def inject_late_update(run_ts: str, scope_dir: str) -> str:
     """Amend the first row's available_dttm and bump data_loaded_at to now, simulating a
-    late-arriving correction. Passes validation (nothing is broken) - the point is
-    demonstrated by re-running load afterward: total row count is unchanged (no duplicate),
-    but the amended row's new value is reflected (upsert, not append)."""
+    late-arriving correction. Passes validation (nothing is broken) - run_pipeline.py then
+    logs, from the throwaway chaos warehouse, that the total row count is unchanged (no
+    duplicate) and the amended row's new value is reflected (upsert, not append)."""
     path = _first_page_path(run_ts, scope_dir)
     rows = json.loads(path.read_text(encoding="utf-8"))
     now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000")
@@ -89,7 +112,7 @@ def inject_late_update(run_ts: str, scope_dir: str) -> str:
         rows[0]["data_loaded_at"] = now
     path.write_text(json.dumps(rows), encoding="utf-8")
     rowid = rows[0].get("rowid") if rows else "?"
-    return f"amended rowid={rowid} with a new available_dttm={now} -> re-run load.py and check row count is unchanged"
+    return f"amended rowid={rowid} with a new available_dttm={now} -> see the '[pipeline/chaos:late_update] verify' log line after LOAD"
 
 
 SCENARIOS = {

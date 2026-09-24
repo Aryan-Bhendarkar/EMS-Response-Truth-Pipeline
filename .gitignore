@@ -26,6 +26,9 @@ data/processed/*
 logs/*
 !logs/.gitkeep
 
+# Chaos-test outputs (run_pipeline.py --chaos) - never a real KPI pack
+outputs/_chaos/
+
 # OS
 .DS_Store
 Thumbs.db

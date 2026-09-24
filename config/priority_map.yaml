@@ -1,0 +1,55 @@
+# dim_priority_map - every original_priority code observed in the 12-month
+# backfill (2025-07..2026-06, docs/assumptions.md §1), loaded into DuckDB as
+# table dim_priority_map by pipeline/load.py:load_priority_map during TRANSFORM.
+#
+# Why this exists: the brief (§5) asks for the priority mapping to be a real,
+# queryable table rather than prose. The mapping is mostly UNKNOWN - only codes
+# 2 and 3 are defined by a primary source. Nothing downstream should treat an
+# unconfirmed code as having a meaning; confirmed_by_owner is not decorative.
+#
+# code "" = blank / missing at triage (stg_unit_response NULLIFs it to NULL).
+
+owner: "SF EMS Agency / DEM Division of Emergency Communications (CAD triage scheme) - not yet contacted"
+metadata_source: "https://data.sf.gov/api/views/nuek-vuh3.json - original_priority: 'Initial call priority (Code 2: Non-Emergency or Code 3: Emergency)'"
+
+codes:
+  - code: "3"
+    assumed_meaning: "Code 3 - Emergency"
+    source: "https://data.sf.gov/api/views/nuek-vuh3.json - original_priority column description"
+    confirmed_by_owner: true
+  - code: "2"
+    assumed_meaning: "Code 2 - Non-Emergency"
+    source: "https://data.sf.gov/api/views/nuek-vuh3.json - original_priority column description"
+    confirmed_by_owner: true
+  - code: "1"
+    assumed_meaning: "unknown - needs SF EMS Agency / DEM confirmation"
+    source: "observed in data only; not mentioned in the column description"
+    confirmed_by_owner: false
+  - code: "A"
+    assumed_meaning: "unknown - needs SF EMS Agency / DEM confirmation"
+    source: "observed in data only"
+    confirmed_by_owner: false
+  - code: "B"
+    assumed_meaning: "unknown - needs SF EMS Agency / DEM confirmation"
+    source: "observed in data only"
+    confirmed_by_owner: false
+  - code: "C"
+    assumed_meaning: "unknown - needs SF EMS Agency / DEM confirmation"
+    source: "observed in data only"
+    confirmed_by_owner: false
+  - code: "E"
+    assumed_meaning: "unknown - needs SF EMS Agency / DEM confirmation"
+    source: "observed in data only (used in the dispatch/received_original_medic M1 candidates as a hypothesis, not a confirmed meaning)"
+    confirmed_by_owner: false
+  - code: "I"
+    assumed_meaning: "unknown - needs SF EMS Agency / DEM confirmation"
+    source: "observed in data only"
+    confirmed_by_owner: false
+  - code: "T"
+    assumed_meaning: "unknown - needs SF EMS Agency / DEM confirmation"
+    source: "observed in data only"
+    confirmed_by_owner: false
+  - code: ""
+    assumed_meaning: "unknown - blank / missing at triage; needs SF EMS Agency / DEM confirmation"
+    source: "observed in data only"
+    confirmed_by_owner: false

@@ -55,6 +55,24 @@ m1_candidate_definitions:
     owner: "This project's hypothesis - caller experience, SFFD-only"
     confirmed_by_owner: false
 
+# M5 - definition gap (dispatch clock vs received clock), in percentage points.
+# Two pairs are reported on purpose (docs/review_findings.md B2 / E3):
+#  - m5_clock_gap_pair is the headline pair (dispatch_final_ambulance vs
+#    received_final_ambulance -> clock_gap_points, 17.1 pts over the backfill).
+#    Kept as the default because changing it would change the storyline, which
+#    needs owner sign-off (CLAUDE.md).
+#  - m5_best_fit_twin is the like-for-like pair for the empirically best-fitting
+#    M1 definition (dispatch_original_medic) and its received-clock twin ->
+#    best_fit_twin_gap_points. Same priority rule and unit scope, only the clock
+#    differs, so it isolates the clock effect for the definition the official
+#    number most resembles.
+m5_clock_gap_pair:
+  dispatch_clock: dispatch_final_ambulance
+  received_clock: received_final_ambulance
+m5_best_fit_twin:
+  dispatch_clock: dispatch_original_medic
+  received_clock: received_original_medic
+
 # M4 - hospital capacity. SF EMS Agency Policy 4000.1 (docs/decision_log.md,
 # 2026-09-23): two standards exist; only the turnaround one is measurable here.
 m4_hospital_standard:

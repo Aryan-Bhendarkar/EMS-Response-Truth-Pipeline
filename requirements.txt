@@ -1,8 +1,6 @@
-pandas>=2.2
-requests>=2.31
-duckdb>=1.0
-pyyaml>=6.0
-pytest>=8.0
-python-dotenv>=1.0
-jupyter>=1.0
-ipykernel>=6.29
+# Runtime dependencies for the pipeline (run_pipeline.py, pipeline/). Pinned to the versions
+# tested in the project venv. Dev tools (tests, notebooks) are in requirements-dev.txt.
+requests==2.34.2
+duckdb==1.5.5
+PyYAML==6.0.3
+python-dotenv==1.2.3

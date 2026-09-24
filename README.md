@@ -51,7 +51,8 @@ results: `outputs/evidence_table.md`.
 `wr8u-xric` (Fire Incidents) and an Open-Meteo weather source were considered and cut — the
 former is explicitly scoped to non-medical incidents (confirmed via its own metadata); the
 latter had no concrete testable hypothesis. Both decisions, with evidence: `docs/decision_log.md`.
-Full source detail, ownership, grain, freshness and gaps: `docs/source_map.md`.
+Full source detail, ownership, grain, freshness and gaps: `docs/source_map.md`. Table lineage
+from raw pull to final metric (with a diagram): `docs/data_model.md`.
 
 ## Setup and run
 
@@ -120,6 +121,7 @@ publish. Full recommendation: `docs/decision_memo.md`.
 ├── README.md  PROJECT_BRIEF.md  GATE2_DATA_READINESS.md
 ├── docs/
 │   ├── source_map.md          Phase 1: sources, owners, gaps, Mermaid diagram
+│   ├── data_model.md          table lineage (raw -> stg -> fct -> metrics), Mermaid diagram
 │   ├── decision_log.md        every evidence-based pivot away from the brief's hypotheses
 │   ├── assumptions.md         every unconfirmed mapping/exclusion, with an owner
 │   ├── judgement_call.md      the "which clock?" call, with reconciliation evidence

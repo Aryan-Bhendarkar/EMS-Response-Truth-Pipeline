@@ -27,12 +27,15 @@ OUTPUTS_DIR = REPO_ROOT / "outputs"
 
 
 def load_rules() -> dict:
+    """Read validation thresholds and column lists from config/validation_rules.yaml."""
     with open(RULES_PATH, "r", encoding="utf-8") as f:
         return yaml.safe_load(f)
 
 
 @dataclass
 class CheckResult:
+    """One named validation rule's outcome, written verbatim to validation_report.json."""
+
     rule_id: str
     severity: str  # PASS | WARN | FAIL
     description: str
@@ -41,6 +44,7 @@ class CheckResult:
 
 
 def _severity_for_rate(rate: float, warn_above: float, fail_above: float) -> str:
+    """Map a rate onto PASS/WARN/FAIL; each bound is inclusive (rate == bound escalates)."""
     if rate >= fail_above:
         return "FAIL"
     if rate >= warn_above:
@@ -93,6 +97,7 @@ def check_manifest_completeness(run_ts: str, con: duckdb.DuckDBPyConnection) -> 
 
 
 def check_schema(con: duckdb.DuckDBPyConnection, rules: dict) -> CheckResult:
+    """FAIL if any column the downstream SQL models read is missing from the raw pull."""
     columns = {row[0] for row in con.execute("DESCRIBE raw_calls").fetchall()}
     missing = [c for c in rules["required_columns"] if c not in columns]
     metric = {"required": len(rules["required_columns"]), "missing": missing}
@@ -112,6 +117,7 @@ def check_schema(con: duckdb.DuckDBPyConnection, rules: dict) -> CheckResult:
 
 
 def check_rowid_uniqueness(con: duckdb.DuckDBPyConnection) -> CheckResult:
+    """WARN on duplicate rowids - load.py dedupes them, so they don't block the run."""
     row = con.execute(
         "SELECT COUNT(*) AS total, COUNT(DISTINCT rowid) AS distinct_rowid FROM raw_calls"
     ).fetchone()
@@ -135,6 +141,7 @@ def check_rowid_uniqueness(con: duckdb.DuckDBPyConnection) -> CheckResult:
 
 
 def check_null_rates(con: duckdb.DuckDBPyConnection, rules: dict) -> list[CheckResult]:
+    """One check per configured field: its null rate against its warn/fail bounds."""
     results = []
     total = con.execute("SELECT COUNT(*) FROM raw_calls").fetchone()[0]
     for field, bounds in rules["null_rate_thresholds"].items():
@@ -161,6 +168,15 @@ def check_null_rates(con: duckdb.DuckDBPyConnection, rules: dict) -> list[CheckR
 
 
 def check_timestamp_order(con: duckdb.DuckDBPyConnection, rules: dict) -> list[CheckResult]:
+    """One check per configured (earlier, later) pair: rate of rows where later < earlier.
+
+    The fail bound was calibrated on ~365k historical rows. With fewer than
+    min_pairs_for_fail pairs (e.g. a 3-day --since pull) a handful of
+    violations swings the rate past it, so a would-be FAIL is capped at WARN
+    and flagged capped_small_sample=true rather than stopping the run.
+    """
+    bounds = rules["timestamp_order_violation_rate"]
+    min_pairs_for_fail = bounds["min_pairs_for_fail"]
     results = []
     for earlier, later in rules["timestamp_order_pairs"]:
         row = con.execute(f"""
@@ -174,29 +190,96 @@ def check_timestamp_order(con: duckdb.DuckDBPyConnection, rules: dict) -> list[C
         """).fetchone()
         both_present, violations = row
         rate = violations / both_present if both_present else 0.0
-        bounds = rules["timestamp_order_violation_rate"]
         severity = _severity_for_rate(rate, bounds["warn_above"], bounds["fail_above"])
+        capped_small_sample = severity == "FAIL" and both_present < min_pairs_for_fail
+        if capped_small_sample:
+            severity = "WARN"
         pair_id = f"{earlier}_before_{later}"
-        action = (
-            "None."
-            if severity == "PASS"
-            else f"Continue; rows where {later} < {earlier} are excluded from interval metrics "
-            f"built on this pair and counted, per brief Q5 — not silently dropped from the dataset."
-            if severity == "WARN"
-            else f"Stop. Violation rate ({rate:.2%}) far exceeds the known baseline for "
-            f"{pair_id} — investigate before trusting downstream intervals."
-        )
+
+        if severity == "PASS":
+            action = "None."
+        elif severity == "FAIL":
+            action = (f"Stop. Violation rate ({rate:.2%}) far exceeds the known baseline for "
+                      f"{pair_id} — investigate before trusting downstream intervals.")
+        else:
+            action = (f"Continue; rows where {later} < {earlier} are excluded from interval metrics "
+                      f"built on this pair and counted, per brief Q5 — not silently dropped from the dataset.")
+            if capped_small_sample:
+                action += (f" Rate ({rate:.2%}) is above the FAIL bound, but only {both_present} pairs "
+                           f"were compared (< min_pairs_for_fail={min_pairs_for_fail}) - too few for the "
+                           f"rate to be reliable, so capped at WARN. Recheck on a larger window.")
         results.append(CheckResult(
             f"timestamp_order_{pair_id}", severity,
             f"{earlier} must be at or before {later} whenever both are recorded — "
             f"lifecycle events can't happen out of sequence.",
-            {"pair": pair_id, "both_present": both_present, "violations": violations, "rate": round(rate, 6)},
+            {"pair": pair_id, "both_present": both_present, "violations": violations,
+             "rate": round(rate, 6), "min_pairs_for_fail": min_pairs_for_fail,
+             "capped_small_sample": capped_small_sample},
             action,
         ))
     return results
 
 
+def parse_interval_field(field_name: str) -> tuple[str, str]:
+    """Split '<earlier>_to_<later>_minutes' into its two timestamp column names."""
+    if not field_name.endswith("_minutes") or "_to_" not in field_name:
+        raise ValueError(
+            f"[validate/outlier_p999] config field '{field_name}' must be named "
+            f"<earlier>_to_<later>_minutes - fix config/validation_rules.yaml."
+        )
+    earlier, later = field_name.removesuffix("_minutes").split("_to_", 1)
+    return earlier, later
+
+
+def check_outliers_p999(con: duckdb.DuckDBPyConnection, rules: dict) -> list[CheckResult]:
+    """Flag interval values above their own 99.9th percentile for human review (brief Q6).
+
+    Flag only: nothing is excluded from any metric. WARN when any row sits
+    above p99.9 (a large sample almost always has some, by definition), so
+    the reviewer sees the threshold and the worst value on every run.
+    """
+    results = []
+    for field_name in rules["outlier_p999_fields"]:
+        earlier, later = parse_interval_field(field_name)
+        threshold, measured, above, max_minutes = con.execute(f"""
+            WITH intervals AS (
+                SELECT date_diff('second', CAST({earlier} AS TIMESTAMP),
+                                           CAST({later} AS TIMESTAMP)) / 60.0 AS minutes
+                FROM raw_calls
+                WHERE {earlier} IS NOT NULL AND {later} IS NOT NULL
+            )
+            SELECT
+                (SELECT quantile_cont(minutes, 0.999) FROM intervals) AS p999,
+                COUNT(*) AS measured,
+                COUNT(*) FILTER (WHERE minutes > (SELECT quantile_cont(minutes, 0.999) FROM intervals)),
+                MAX(minutes)
+            FROM intervals
+        """).fetchone()
+
+        metric = {
+            "field": field_name,
+            "rows_measured": measured,
+            "p999_threshold_minutes": round(threshold, 2) if threshold is not None else None,
+            "rows_above_p999": above,
+            "max_minutes": round(max_minutes, 2) if max_minutes is not None else None,
+        }
+        severity = "WARN" if above > 0 else "PASS"
+        action = (
+            f"Continue. {above} row(s) above p99.9 ({metric['p999_threshold_minutes']} min; "
+            f"max {metric['max_minutes']} min) stay in every metric - flagged for review only."
+            if severity == "WARN" else "None."
+        )
+        results.append(CheckResult(
+            f"outlier_p999_{field_name}", severity,
+            f"Extreme {earlier} -> {later} intervals (above the 99.9th percentile) are kept, "
+            f"not excluded, but flagged so a human can review them (brief Q6).",
+            metric, action,
+        ))
+    return results
+
+
 def check_priority_domain(con: duckdb.DuckDBPyConnection, rules: dict) -> CheckResult:
+    """Always WARN (mapping unconfirmed by an owner); lists any value outside the known set."""
     expected = set(rules["priority_domain"]["expected_values"])
     rows = con.execute(
         "SELECT COALESCE(original_priority, ''), COUNT(*) FROM raw_calls GROUP BY 1 ORDER BY 2 DESC"
@@ -223,8 +306,13 @@ def check_priority_domain(con: duckdb.DuckDBPyConnection, rules: dict) -> CheckR
     )
 
 
-def check_freshness(con: duckdb.DuckDBPyConnection, rules: dict, logger) -> CheckResult:
+def check_freshness(con: duckdb.DuckDBPyConnection, rules: dict, logger, incremental: bool = False) -> CheckResult:
     """Wall-clock freshness only makes sense for a pull whose own data extends near 'now'.
+
+    An incremental (--since) pull is always judged: it exists to be current, so
+    old data in it means the source has stalled, not that it's a deliberate
+    historical window. Without this, a source that stopped updating >48h ago
+    would pass as "not applicable" and be published as current.
 
     A deliberate historical backfill (e.g. 2025-07..2026-06, chosen in Phase 1 so every
     month has an official scorecard actual to reconcile against) will always have an old
@@ -233,10 +321,20 @@ def check_freshness(con: duckdb.DuckDBPyConnection, rules: dict, logger) -> Chec
     """
     threshold = rules["freshness"]["max_data_loaded_at_age_hours"]
     max_received = con.execute("SELECT MAX(CAST(received_dttm AS TIMESTAMP)) FROM raw_calls").fetchone()[0]
+    if max_received is None:
+        # MAX() over zero rows (or all-null received_dttm) is NULL: there is no
+        # data to judge, and an empty pull must never be published as current.
+        return CheckResult(
+            "freshness", "FAIL",
+            "The pull must contain at least one row with a received_dttm to judge freshness.",
+            {"max_received_dttm": None, "threshold_hours": threshold},
+            "Stop. The raw pull has no rows with received_dttm - re-run extract and check the "
+            "manifest's rows_received and the API filter before trusting this run.",
+        )
     now = datetime.now(timezone.utc)
     received_age_hours = (now - max_received.replace(tzinfo=timezone.utc)).total_seconds() / 3600
 
-    if received_age_hours > threshold:
+    if received_age_hours > threshold and not incremental:
         return CheckResult(
             "freshness", "PASS",
             f"The newest data_loaded_at across all pulled rows must be within {threshold}h of "
@@ -249,6 +347,14 @@ def check_freshness(con: duckdb.DuckDBPyConnection, rules: dict, logger) -> Chec
         )
 
     max_loaded = con.execute("SELECT MAX(CAST(data_loaded_at AS TIMESTAMP)) FROM raw_calls").fetchone()[0]
+    if max_loaded is None:
+        return CheckResult(
+            "freshness", "FAIL",
+            f"The newest data_loaded_at across all pulled rows must be within {threshold}h of now.",
+            {"max_data_loaded_at": None, "threshold_hours": threshold},
+            "Stop. No row has a data_loaded_at, so freshness can't be proven - check the "
+            "DataSF dataset's load status before re-running extract.",
+        )
     age_hours = (now - max_loaded.replace(tzinfo=timezone.utc)).total_seconds() / 3600
     metric = {"max_data_loaded_at": str(max_loaded), "age_hours": round(age_hours, 2), "threshold_hours": threshold}
     if age_hours >= threshold:
@@ -266,8 +372,16 @@ def check_freshness(con: duckdb.DuckDBPyConnection, rules: dict, logger) -> Chec
     )
 
 
-def profile_summary(con: duckdb.DuckDBPyConnection) -> dict:
-    """Descriptive facts (not PASS/WARN/FAIL) that the notebook narrates. Re-verifies brief Q1/Q3/Q8."""
+def profile_summary(con: duckdb.DuckDBPyConnection, columns_ok: bool = True) -> dict:
+    """Descriptive facts (not PASS/WARN/FAIL) that the notebook narrates. Re-verifies brief Q1/Q3/Q8.
+
+    Pass columns_ok=False after a schema FAIL: the profiled columns may be the
+    missing ones, so only the row count (which needs no column) is returned.
+    """
+    if not columns_ok:
+        unit_rows = con.execute("SELECT COUNT(*) FROM raw_calls").fetchone()[0]
+        return {"unit_rows": unit_rows,
+                "note": "column profile skipped: schema_required_columns FAILed"}
     grain = con.execute(
         "SELECT COUNT(*) AS unit_rows, COUNT(DISTINCT call_number) AS distinct_calls FROM raw_calls"
     ).fetchone()
@@ -288,7 +402,14 @@ def profile_summary(con: duckdb.DuckDBPyConnection) -> dict:
     }
 
 
-def run_validation(run_ts: str, logger, scope: str = "full backfill window (config/settings.yaml backfill.start_month..end_month)") -> dict:
+def run_validation(run_ts: str, logger, scope: str = "full backfill window (config/settings.yaml backfill.start_month..end_month)",
+                   incremental: bool = False) -> dict:
+    """Run every check against one raw run_ts and return the validation report dict.
+
+    Column-dependent checks are skipped after a schema FAIL. overall_status is
+    the worst severity seen; the caller decides whether to stop on FAIL and
+    where to write the report (see write_report).
+    """
     rules = load_rules()
     con = duckdb.connect()
     load_calls_view(con, run_ts)
@@ -308,8 +429,9 @@ def run_validation(run_ts: str, logger, scope: str = "full backfill window (conf
         checks.append(check_rowid_uniqueness(con))
         checks.extend(check_null_rates(con, rules))
         checks.extend(check_timestamp_order(con, rules))
+        checks.extend(check_outliers_p999(con, rules))
         checks.append(check_priority_domain(con, rules))
-        checks.append(check_freshness(con, rules, logger))
+        checks.append(check_freshness(con, rules, logger, incremental=incremental))
 
     for c in checks:
         logger.info("[validate/%s] %s", c.rule_id, c.severity)
@@ -327,7 +449,7 @@ def run_validation(run_ts: str, logger, scope: str = "full backfill window (conf
         "scope": scope,
         "overall_status": overall,
         "checks": [asdict(c) for c in checks],
-        "profile": profile_summary(con),
+        "profile": profile_summary(con, columns_ok=schema_check.severity != "FAIL"),
     }
 
     logger.info("[validate] overall_status=%s (%d checks: %d PASS, %d WARN, %d FAIL)",
@@ -341,6 +463,7 @@ def run_validation(run_ts: str, logger, scope: str = "full backfill window (conf
 
 
 def write_report(report: dict, out_path: Optional[Path] = None) -> Path:
+    """Write the report as JSON (default outputs/validation_report.json) and return its path."""
     out_path = out_path or (OUTPUTS_DIR / "validation_report.json")
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(report, indent=2, default=str), encoding="utf-8")

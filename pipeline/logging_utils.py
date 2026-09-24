@@ -1,6 +1,7 @@
 """Structured console + file logging shared by every pipeline stage."""
 
 import logging
+import time
 from pathlib import Path
 
 LOG_DIR = Path(__file__).resolve().parent.parent / "logs"
@@ -21,6 +22,9 @@ def get_logger(run_id: str, name: str = "pipeline") -> logging.Logger:
     formatter = logging.Formatter(
         fmt="%(asctime)s %(levelname)-5s %(message)s", datefmt="%Y-%m-%dT%H:%M:%SZ"
     )
+    # The datefmt ends in "Z", so the time must actually be UTC - not whatever
+    # the host's local timezone happens to be.
+    formatter.converter = time.gmtime
 
     file_handler = logging.FileHandler(LOG_DIR / f"pipeline_{run_id}.log", encoding="utf-8")
     file_handler.setFormatter(formatter)

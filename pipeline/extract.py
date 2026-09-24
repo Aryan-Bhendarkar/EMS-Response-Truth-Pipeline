@@ -8,10 +8,15 @@ later pipeline stages always have an unmodified copy to fall back on.
 Completeness is proven, not assumed: before paginating, we ask the API for
 count(*) under the same filter, then check the rows actually received match.
 A mismatch is a hard failure — see ExtractionIncompleteError.
+
+Every public extract_* function is a thin wrapper that decides *what* to pull
+(filter, output folder, manifest label); _extract_to_raw does the *how*
+(count -> paginate -> manifest -> completeness check) once, for all of them.
 """
 
 import argparse
-import calendar
+import csv
+import io
 import json
 import os
 import time
@@ -56,12 +61,10 @@ def month_bounds(month: str) -> tuple[str, str]:
     """Return (start, next_month_start) as SoQL-safe date strings for a 'YYYY-MM' month."""
     year, mon = (int(p) for p in month.split("-"))
     start = f"{year:04d}-{mon:02d}-01"
-    last_day = calendar.monthrange(year, mon)[1]
     if mon == 12:
         next_start = f"{year + 1:04d}-01-01"
     else:
         next_start = f"{year:04d}-{mon + 1:02d}-01"
-    del last_day  # not needed once we have the next month's start
     return start, next_start
 
 
@@ -81,6 +84,8 @@ def month_range(start_month: str, end_month: str) -> list[str]:
 
 @dataclass
 class RetryConfig:
+    """Bounded exponential-backoff settings for every API request (from config/settings.yaml)."""
+
     max_retries: int = 5
     backoff_base_seconds: float = 2.0
     backoff_max_seconds: float = 60.0
@@ -89,6 +94,7 @@ class RetryConfig:
 
     @classmethod
     def from_settings(cls, settings: dict) -> "RetryConfig":
+        """Build from the `retrieval` block of config/settings.yaml."""
         r = settings["retrieval"]
         return cls(
             max_retries=r["max_retries"],
@@ -101,6 +107,8 @@ class RetryConfig:
 
 @dataclass
 class ExtractResult:
+    """What one extract asked for vs. received; `complete` is derived, never set by hand."""
+
     source: str
     run_id: str
     where: str
@@ -158,6 +166,18 @@ def get_count(base_url: str, where: str, headers: dict, retry_cfg: RetryConfig, 
     return int(rows[0]["count"]) if rows else 0
 
 
+def _count_page_rows(page_text: str, fmt: str) -> int:
+    """Number of data records in one saved page ("json" or "csv").
+
+    CSV is counted with the csv module rather than by newlines: a quoted field
+    can legally contain an embedded newline, which would overcount records.
+    """
+    if fmt == "csv":
+        records = list(csv.reader(io.StringIO(page_text)))
+        return max(len(records) - 1, 0)  # minus the header row
+    return len(json.loads(page_text))
+
+
 def paginate_and_save(
     base_url: str,
     where: str,
@@ -168,11 +188,14 @@ def paginate_and_save(
     raw_dir: Path,
     logger,
     context: str,
+    fmt: str = "json",
 ) -> tuple[int, int]:
     """Page through the API with $limit/$offset, saving each page untouched.
 
     Returns (rows_received, pages_written). Pages are saved before any parsing
     so a later stage can always re-derive from the exact bytes the API sent.
+    fmt ("json" or "csv") sets the saved file extension and how rows are
+    counted; base_url must already point at the matching endpoint.
     """
     raw_dir.mkdir(parents=True, exist_ok=True)
     offset = 0
@@ -187,12 +210,11 @@ def paginate_and_save(
             "$offset": offset,
         }
         response = _request_with_retry(base_url, params, headers, retry_cfg, logger, context)
-        page_rows = response.json()
 
-        page_path = raw_dir / f"page_{page_num:04d}.json"
+        page_path = raw_dir / f"page_{page_num:04d}.{fmt}"
         page_path.write_text(response.text, encoding="utf-8")
 
-        n = len(page_rows)
+        n = _count_page_rows(response.text, fmt)
         rows_received += n
         page_num += 1
         logger.info("[extract/%s] page %d: %d rows (offset %d)", context, page_num, n, offset)
@@ -205,35 +227,50 @@ def paginate_and_save(
 
 
 def _write_manifest(raw_dir: Path, manifest: dict) -> None:
+    """Record what this extract asked for and received, next to its raw pages."""
     (raw_dir / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
 
 
-def extract_calls_month(month: str, run_id: str, settings: dict, token: Optional[str], logger) -> ExtractResult:
-    """Pull every unit-response row for one calendar month and prove completeness."""
-    cfg = settings["sources"]["calls"]
+def _extract_to_raw(
+    source: str,
+    source_cfg: dict,
+    where: str,
+    raw_dir: Path,
+    manifest_scope: dict,
+    run_id: str,
+    settings: dict,
+    token: Optional[str],
+    logger,
+    context: str,
+    rerun_hint: str,
+    fmt: str = "json",
+) -> ExtractResult:
+    """Shared extract flow: count(*) -> paginate and save -> manifest -> completeness check.
+
+    manifest_scope is the one field saying which slice this is (month,
+    lookback_days or measure_code); validate.py and chaos.py read manifests,
+    so every manifest keeps the same set of fields.
+    Raises ExtractionIncompleteError if rows received != count(*).
+    """
     retry_cfg = RetryConfig.from_settings(settings)
     headers = {"X-App-Token": token} if token else {}
-
-    start, next_start = month_bounds(month)
-    where = f"{cfg['timestamp_field']} >= '{start}' AND {cfg['timestamp_field']} < '{next_start}'"
-    context = f"calls/{month}"
+    # count(*) always asks the JSON endpoint; only the page downloads switch format.
+    page_url = source_cfg["base_url"].replace(".json", f".{fmt}")
 
     logger.info("[%s] requesting count(*) for %s", context, where)
-    rows_expected = get_count(cfg["base_url"], where, headers, retry_cfg, logger, context)
-
-    raw_dir = RAW_DATA_DIR / "calls" / f"run_ts={run_id}" / month
+    rows_expected = get_count(source_cfg["base_url"], where, headers, retry_cfg, logger, context)
     rows_received, pages_written = paginate_and_save(
-        cfg["base_url"], where, cfg["order_field"], headers, retry_cfg,
-        settings["retrieval"]["page_size"], raw_dir, logger, context,
+        page_url, where, source_cfg["order_field"], headers, retry_cfg,
+        settings["retrieval"]["page_size"], raw_dir, logger, context, fmt=fmt,
     )
 
     result = ExtractResult(
-        source="calls", run_id=run_id, where=where,
+        source=source, run_id=run_id, where=where,
         rows_expected=rows_expected, rows_received=rows_received,
         pages_written=pages_written, raw_dir=raw_dir,
     )
     _write_manifest(raw_dir, {
-        "source": "calls", "month": month, "run_id": run_id, "where": where,
+        "source": source, **manifest_scope, "run_id": run_id, "where": where,
         "rows_expected": rows_expected, "rows_received": rows_received,
         "pages_written": pages_written, "complete": result.complete,
         "requested_at": datetime.now(timezone.utc).isoformat(),
@@ -242,11 +279,32 @@ def extract_calls_month(month: str, run_id: str, settings: dict, token: Optional
     if not result.complete:
         raise ExtractionIncompleteError(
             f"[extract/{context}] FAIL: API reported {rows_expected} rows but pagination "
-            f"received {rows_received}. Next action: re-run this month; if the gap persists, "
-            f"check for pagination limits or API-side filtering changes before trusting this data."
+            f"received {rows_received}. Next action: {rerun_hint}"
         )
-    logger.info("[%s] PASS: %d/%d rows received across %d pages", context, rows_received, rows_expected, pages_written)
+    logger.info("[%s] PASS: %d/%d rows received across %d pages",
+                context, rows_received, rows_expected, pages_written)
     return result
+
+
+def _month_where(timestamp_field: str, month: str) -> str:
+    """SoQL filter selecting every row whose timestamp falls in one calendar month."""
+    start, next_start = month_bounds(month)
+    return f"{timestamp_field} >= '{start}' AND {timestamp_field} < '{next_start}'"
+
+
+def extract_calls_month(month: str, run_id: str, settings: dict, token: Optional[str], logger) -> ExtractResult:
+    """Pull every unit-response row for one calendar month and prove completeness."""
+    cfg = settings["sources"]["calls"]
+    return _extract_to_raw(
+        source="calls", source_cfg=cfg,
+        where=_month_where(cfg["timestamp_field"], month),
+        raw_dir=RAW_DATA_DIR / "calls" / f"run_ts={run_id}" / month,
+        manifest_scope={"month": month},
+        run_id=run_id, settings=settings, token=token, logger=logger,
+        context=f"calls/{month}",
+        rerun_hint="re-run this month; if the gap persists, check for pagination limits "
+                   "or API-side filtering changes before trusting this data.",
+    )
 
 
 def extract_calls_since(days: int, run_id: str, settings: dict, token: Optional[str], logger) -> ExtractResult:
@@ -257,76 +315,30 @@ def extract_calls_since(days: int, run_id: str, settings: dict, token: Optional[
     fresh raw copy of every row DataSF currently reports for the window.
     """
     cfg = settings["sources"]["calls"]
-    retry_cfg = RetryConfig.from_settings(settings)
-    headers = {"X-App-Token": token} if token else {}
-
     since_date = (datetime.now(timezone.utc) - timedelta(days=days)).strftime("%Y-%m-%d")
-    where = f"{cfg['timestamp_field']} >= '{since_date}'"
-    context = f"calls/since_{days}d"
-
-    rows_expected = get_count(cfg["base_url"], where, headers, retry_cfg, logger, context)
-    raw_dir = RAW_DATA_DIR / "calls" / f"run_ts={run_id}" / f"since_{days}d"
-    rows_received, pages_written = paginate_and_save(
-        cfg["base_url"], where, cfg["order_field"], headers, retry_cfg,
-        settings["retrieval"]["page_size"], raw_dir, logger, context,
+    return _extract_to_raw(
+        source="calls", source_cfg=cfg,
+        where=f"{cfg['timestamp_field']} >= '{since_date}'",
+        raw_dir=RAW_DATA_DIR / "calls" / f"run_ts={run_id}" / f"since_{days}d",
+        manifest_scope={"lookback_days": days},
+        run_id=run_id, settings=settings, token=token, logger=logger,
+        context=f"calls/since_{days}d",
+        rerun_hint="re-run the incremental pull.",
     )
-
-    result = ExtractResult(
-        source="calls", run_id=run_id, where=where,
-        rows_expected=rows_expected, rows_received=rows_received,
-        pages_written=pages_written, raw_dir=raw_dir,
-    )
-    _write_manifest(raw_dir, {
-        "source": "calls", "lookback_days": days, "run_id": run_id, "where": where,
-        "rows_expected": rows_expected, "rows_received": rows_received,
-        "pages_written": pages_written, "complete": result.complete,
-        "requested_at": datetime.now(timezone.utc).isoformat(),
-    })
-
-    if not result.complete:
-        raise ExtractionIncompleteError(
-            f"[extract/{context}] FAIL: API reported {rows_expected} rows but pagination "
-            f"received {rows_received}. Next action: re-run the incremental pull."
-        )
-    logger.info("[%s] PASS: %d/%d rows received", context, rows_received, rows_expected)
-    return result
 
 
 def extract_scorecard(run_id: str, settings: dict, token: Optional[str], logger) -> ExtractResult:
     """Pull the full history of the official scorecard measure (small dataset, no window needed)."""
     cfg = settings["sources"]["scorecard"]
-    retry_cfg = RetryConfig.from_settings(settings)
-    headers = {"X-App-Token": token} if token else {}
-
-    where = f"measure_code = '{cfg['measure_code']}'"
-    context = "scorecard"
-
-    rows_expected = get_count(cfg["base_url"], where, headers, retry_cfg, logger, context)
-    raw_dir = RAW_DATA_DIR / "scorecard" / f"run_ts={run_id}"
-    rows_received, pages_written = paginate_and_save(
-        cfg["base_url"], where, cfg["order_field"], headers, retry_cfg,
-        settings["retrieval"]["page_size"], raw_dir, logger, context,
+    return _extract_to_raw(
+        source="scorecard", source_cfg=cfg,
+        where=f"measure_code = '{cfg['measure_code']}'",
+        raw_dir=RAW_DATA_DIR / "scorecard" / f"run_ts={run_id}",
+        manifest_scope={"measure_code": cfg["measure_code"]},
+        run_id=run_id, settings=settings, token=token, logger=logger,
+        context="scorecard",
+        rerun_hint="re-run the scorecard pull.",
     )
-
-    result = ExtractResult(
-        source="scorecard", run_id=run_id, where=where,
-        rows_expected=rows_expected, rows_received=rows_received,
-        pages_written=pages_written, raw_dir=raw_dir,
-    )
-    _write_manifest(raw_dir, {
-        "source": "scorecard", "measure_code": cfg["measure_code"], "run_id": run_id, "where": where,
-        "rows_expected": rows_expected, "rows_received": rows_received,
-        "pages_written": pages_written, "complete": result.complete,
-        "requested_at": datetime.now(timezone.utc).isoformat(),
-    })
-
-    if not result.complete:
-        raise ExtractionIncompleteError(
-            f"[extract/{context}] FAIL: API reported {rows_expected} rows but pagination "
-            f"received {rows_received}. Next action: re-run the scorecard pull."
-        )
-    logger.info("[%s] PASS: %d/%d rows received", context, rows_received, rows_expected)
-    return result
 
 
 def extract_calls_month_csv(month: str, run_id: str, settings: dict, token: Optional[str], logger) -> ExtractResult:
@@ -342,57 +354,16 @@ def extract_calls_month_csv(month: str, run_id: str, settings: dict, token: Opti
     independently-implemented retrieval paths.
     """
     cfg = settings["sources"]["calls"]
-    retry_cfg = RetryConfig.from_settings(settings)
-    headers = {"X-App-Token": token} if token else {}
-    csv_url = cfg["base_url"].replace(".json", ".csv")
-
-    start, next_start = month_bounds(month)
-    where = f"{cfg['timestamp_field']} >= '{start}' AND {cfg['timestamp_field']} < '{next_start}'"
-    context = f"calls_csv/{month}"
-
-    rows_expected = get_count(cfg["base_url"], where, headers, retry_cfg, logger, context)
-
-    raw_dir = RAW_DATA_DIR / "calls_csv" / f"run_ts={run_id}" / month
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    page_size = settings["retrieval"]["page_size"]
-    offset = 0
-    page_num = 0
-    rows_received = 0
-
-    while True:
-        params = {"$where": where, "$order": cfg["order_field"], "$limit": page_size, "$offset": offset}
-        response = _request_with_retry(csv_url, params, headers, retry_cfg, logger, context)
-        page_path = raw_dir / f"page_{page_num:04d}.csv"
-        page_path.write_text(response.text, encoding="utf-8")
-
-        n = max(response.text.count("\n") - 1, 0)  # data rows = lines minus header
-        rows_received += n
-        page_num += 1
-        logger.info("[extract/%s] page %d: %d rows (offset %d)", context, page_num, n, offset)
-
-        if n < page_size:
-            break
-        offset += page_size
-
-    result = ExtractResult(
-        source="calls_csv", run_id=run_id, where=where,
-        rows_expected=rows_expected, rows_received=rows_received,
-        pages_written=page_num, raw_dir=raw_dir,
+    return _extract_to_raw(
+        source="calls_csv", source_cfg=cfg,
+        where=_month_where(cfg["timestamp_field"], month),
+        raw_dir=RAW_DATA_DIR / "calls_csv" / f"run_ts={run_id}" / month,
+        manifest_scope={"month": month},
+        run_id=run_id, settings=settings, token=token, logger=logger,
+        context=f"calls_csv/{month}",
+        rerun_hint="re-run this month's CSV pull.",
+        fmt="csv",
     )
-    _write_manifest(raw_dir, {
-        "source": "calls_csv", "month": month, "run_id": run_id, "where": where,
-        "rows_expected": rows_expected, "rows_received": rows_received,
-        "pages_written": page_num, "complete": result.complete,
-        "requested_at": datetime.now(timezone.utc).isoformat(),
-    })
-
-    if not result.complete:
-        raise ExtractionIncompleteError(
-            f"[extract/{context}] FAIL: API reported {rows_expected} rows but the CSV pull "
-            f"received {rows_received}. Next action: re-run this month's CSV pull."
-        )
-    logger.info("[%s] PASS: %d/%d rows received across %d pages", context, rows_received, rows_expected, page_num)
-    return result
 
 
 def _cli() -> argparse.Namespace:
@@ -407,6 +378,7 @@ def _cli() -> argparse.Namespace:
 
 
 def main() -> None:
+    """CLI entry point: run one extract mode; exit non-zero if a pull was incomplete."""
     args = _cli()
     settings = load_settings()
     token = get_app_token()

@@ -9,6 +9,9 @@
 # observed baseline each bound is calibrated against.
 
 required_columns:
+  # Every raw column the SQL models (pipeline/transform/*.sql) read. A column
+  # missing here would pass validation and crash TRANSFORM instead of failing
+  # cleanly at VALIDATE - keep this list in sync with 010_stg_unit_response.sql.
   - call_number
   - unit_id
   - incident_number
@@ -19,6 +22,15 @@ required_columns:
   - on_scene_dttm
   - call_final_disposition
   - available_dttm
+  - transport_dttm
+  - hospital_dttm
+  - call_type
+  - als_unit
+  - unit_sequence_in_call_dispatch
+  - battalion
+  - station_area
+  - supervisor_district
+  - neighborhoods_analysis_boundaries
   - original_priority
   - priority
   - final_priority
@@ -49,6 +61,12 @@ timestamp_order_violation_rate:
   # Rate is violations / rows where both timestamps in the pair are present.
   warn_above: 0.0005
   fail_above: 0.01
+  # These rates were calibrated on ~365k closed historical rows. A small pull
+  # (e.g. a 3-day --since window, ~700 transport/hospital pairs) makes the rate
+  # too noisy to justify stopping the run: 9 violations out of 720 is 1.25%.
+  # Below this many pairs, a would-be FAIL is capped at WARN and the check's
+  # metric records capped_small_sample: true. See docs/decision_log.md.
+  min_pairs_for_fail: 5000
 
 priority_domain:
   # original_priority is known to mix two coding schemes (brief Q2). Not a
@@ -61,6 +79,8 @@ freshness:
 
 outlier_p999_fields:
   # Fields checked for extreme values beyond the 99.9th percentile (brief Q6).
-  # Not excluded from metrics — flagged for review only.
+  # Not excluded from metrics — flagged for review only (WARN if any row is
+  # above p99.9). Named <earlier>_to_<later>_minutes; validate.py parses the
+  # two timestamp columns from the name.
   - received_dttm_to_dispatch_dttm_minutes
   - hospital_dttm_to_available_dttm_minutes

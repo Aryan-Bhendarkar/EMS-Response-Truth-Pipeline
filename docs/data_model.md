@@ -3,7 +3,8 @@
 > The relational/event model behind `pipeline/transform/*.sql`, separate from `docs/source_map.md`'s
 > source-to-fact diagram. Entities, events/states, and interactions/interventions/outcomes are
 > described in `notebooks/03_workflow_model.ipynb`; this is the table-lineage view of the same
-> model, as it's actually implemented in DuckDB.
+> model, as it's actually implemented in DuckDB. What each metric means (formula, clock fields,
+> filters, exclusions, owner, confirmation status) is in `docs/kpi_definitions.md`.
 
 ## Table lineage
 
@@ -23,6 +24,10 @@ flowchart TB
         FC["fct_call\ngrain: call_number\nfirst_medic / first_ambulance / first_any_unit\non-scene candidates, priority, n_units"]
     end
 
+    subgraph Dims["Dimensions"]
+        PM[("dim_priority_map\ngrain: original_priority code\nfrom config/priority_map.yaml,\nconfirmed_by_owner per code")]
+    end
+
     subgraph Metrics["Metrics (pipeline/metrics.py, Python-orchestrated)"]
         M1["M1: 5 candidate KPI definitions\n(config/kpi_definitions.yaml)\nx 12 months"]
         RECON["Reconciliation vs. scorecard_measures\n-> docs/judgement_call.md"]
@@ -39,6 +44,7 @@ flowchart TB
     SUR -->|"020_fct_unit_event.sql\nUNION ALL, one row per event"| FUE
     SUR -->|"030_fct_call.sql\nGROUP BY call_number\n(ANY_VALUE safe: 0 exceptions,\nsee notebooks/03)"| FC
     FC --> M1
+    PM -.->|"documents what each\npriority code means"| FC
     SC --> RECON
     M1 --> RECON
     SUR --> M2M5

@@ -41,11 +41,12 @@
 ### The measure's real definition — found in the Controller's Office FY25 Annual Performance Report
 - **Source:** `Annual Performance Results, Fiscal Year 2024-2025`, Office of the Controller, City Performance Division, December 2025 (`media.api.sf.gov/documents/FY25_APR_Final.pdf`), p.17.
 - **Quote:** *"During life-threatening Code 3 incidents (red lights and siren), first responders arrive at the scene and provide basic and/or advanced life support (BLS/ALS) to individual(s) in need of medical care. The City's goal is to respond quickly enough that ambulances arrive at the scene of Code 3 emergencies within ten minutes at least 90% of the time."*
-- The scorecard table on p.14 labels the measure **"percentage of SFFD calls responded to within 10 minutes"** — the word "SFFD" suggests the metric is scoped to SFFD-run response, not private ambulance contractors. This is consistent with the brief's finding that `original ∈ {3,E}` + `MEDIC only` reproduces the official number most closely (87.4% vs 88.4%), but it is **not a direct statement that private units are excluded from the clock** — flagged as still needing reconciliation evidence, not proof, in Phase 4.
+- The scorecard table on p.14 labels the measure **"percentage of SFFD calls responded to within 10 minutes"** — the word "SFFD" suggests the metric is scoped to SFFD-run response, not private ambulance contractors. This is consistent with the brief's finding that `original ∈ {3,E}` + `MEDIC only` reproduces the official number most closely (brief's prototype: 87.4% vs 88.4%; the pipeline's own figure for June 2026 is 85.6% vs 88.4%, `docs/judgement_call.md`), but it is **not a direct statement that private units are excluded from the clock** — flagged as still needing reconciliation evidence, not proof, in Phase 4.
 - **Not yet confirmed from a primary document:** which timestamp starts the clock (dispatch vs. call-received). A web search surfaced a paraphrase claiming the clock is "Call Dispatched → Units On-Scene" ("Roll Time"), but this did not come from a document we read directly — treat as an unconfirmed lead, not a fact, until Phase 4's reconciliation exercise tests it against the actual data.
 
 ### Hospital hand-over policy — SF EMS Agency Policy 4000.1 (Ambulance Turnaround Time Standard)
 - **Source:** `media.api.sf.gov/documents/EMSA-4000.1-Ambulance-Turnaround-Time-Standard-10-1-2026.pdf`, effective 10/1/26, SF EMS Agency.
+- **Timing caveat:** effective 2026-10-01, i.e. *after* the whole analysis window (2025-07..2026-06). This project uses it as the forward-looking benchmark. The standard in force during the window (if any) was not located in the sources read — an open item, not assumed.
 - **Two distinct standards, easy to conflate:**
   1. **Offload time interval ≤ 20 min, 90% of the time** — the "APOT-1" standard (§4.1). APOT-1 is defined as *"the time when a patient is physically removed from the ambulance gurney to hospital equipment... as recorded by a signature from an emergency department nurse or doctor in a patient's EMS electronic health record."* **This timestamp does not exist in S1.** S1 has no field capturing patient offload or an ED signature.
   2. **Ambulance turnaround interval ≤ 30 min, 90% of the time** — arrival at ED to return-to-service (§4.2). This *is* approximately what S1 can measure: `hospital_dttm → available_dttm`.
@@ -101,8 +102,11 @@ flowchart LR
     style S4 stroke-dasharray: 5 5
 ```
 
-## 4. What's still open going into Phase 2/3
+## 4. Open items from Phase 1 — status after Phase 4-6
 
-1. **Which timestamp starts the official clock** (dispatch vs. call-received) — unconfirmed from a primary document; will be tested empirically in Phase 4 by computing M1 under both clock starts and comparing to the 88.4% figure across several months, not assumed from a search-engine paraphrase.
-2. **Whether the official measure excludes `PRIVATE` units** — plausible from the "SFFD calls" wording in the FY25 APR, not yet proven.
-3. **Priority code mapping** (`{A,B,C,E,I,T}` → numeric) has no documented owner anywhere in the sources read so far. Stays an open assumption, `confirmed_by_owner = false`, per the brief.
+*Originally written as "still open going into Phase 2/3". Updated 2026-09-24 with what was resolved and how.*
+
+1. **Which timestamp starts the official clock** (dispatch vs. call-received) — **resolved empirically, not from a primary document.** M1 was computed under both clock starts for all 12 months and compared to the official actuals: every dispatch-clock candidate lands within 3.5-5.0 points (mean absolute gap), every received-clock candidate 21.6-22.1 points off. See `docs/judgement_call.md`. Still **open for owner confirmation** — no SF EMS Agency / Controller's Office text states the clock start.
+2. **Whether the official measure excludes `PRIVATE` units** — **still open.** Tested, but the data can't separate it: `dispatch_original_medic` (MEDIC only, 3.51) and `dispatch_ctg_any_responder` (any unit, 3.58) fit almost equally well; `dispatch_final_ambulance` (MEDIC+PRIVATE, 5.01) fits slightly worse. See `docs/judgement_call.md` and `docs/kpi_definitions.md`.
+3. **Priority code mapping** (`{1,A,B,C,E,I,T}`) — **still open**, now tracked as data rather than prose: `config/priority_map.yaml` → DuckDB `dim_priority_map`, with `confirmed_by_owner = true` only for codes `2` and `3`. No documented owner found. See `docs/assumptions.md` §1.
+4. **Standard in force before Policy 4000.1** (effective 2026-10-01) — **open.** Not located; M4 uses 4000.1 as a forward-looking benchmark (§2 above).

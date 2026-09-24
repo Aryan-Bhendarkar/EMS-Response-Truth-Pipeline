@@ -26,13 +26,13 @@
   JSON, 28,737 via CSV**, exact match, two independently-implemented retrieval paths.
 - Every raw page saved untouched under `data/raw/<source>/run_ts=<timestamp>/`, never overwritten.
 
-## 2. Validation — 13 named rules, real result
+## 2. Validation — 15 named checks, real result
 
 Run: `python -m pipeline.validate --run-ts 20260923T163957Z` → `outputs/validation_report.json`.
 
-**Result: `overall_status = WARN`** — 7 PASS, 6 WARN, 0 FAIL, across schema, rowid uniqueness,
-manifest-completeness cross-check, 3 null-rate checks, 5 timestamp-order checks, priority-domain,
-and freshness. Every WARN has a named rule, a counted metric, and a next action (thresholds:
+**Result: `overall_status = WARN`** — 7 PASS, 8 WARN, 0 FAIL, across schema, rowid uniqueness,
+manifest-completeness cross-check, 3 null-rate checks, 5 timestamp-order checks, 2 p99.9
+outlier checks (flag-only, added in the 2026-09-24 review), priority-domain, and freshness. Every WARN has a named rule, a counted metric, and a next action (thresholds:
 `config/validation_rules.yaml`; unconfirmed mappings and their owners: `docs/assumptions.md`).
 
 A real bug was found and fixed here: a genuinely missing column (simulated by `--chaos
@@ -56,8 +56,8 @@ slightly different p90 values (4.7 vs 4.8 minutes) across two otherwise-identica
 artifact of its approximate (t-digest) algorithm. Since this project's data volumes are small
 enough that exact computation is cheap, every `approx_quantile` call in `pipeline/metrics.py` and
 the notebooks was switched to `quantile_cont` (exact). Re-verified: `metrics.json` identical
-after the fix. This also incidentally corrected M3's travel-time figures to match the brief's
-original prototype numbers much more closely (see `docs/decision_log.md`).
+after the fix. (M3's move closer to the brief's prototype figures came from a separate change,
+scoping M3 to MEDIC/PRIVATE units. See `docs/decision_log.md`.)
 
 ## 4. Failure handling — all 5 `--chaos` scenarios verified
 
@@ -65,9 +65,9 @@ original prototype numbers much more closely (see `docs/decision_log.md`).
 |---|---|---|
 | `missing_column` | `--month 2026-05 --chaos missing_column` | **FAIL** `schema_required_columns`. Exit code 1. No `outputs/2026-05/` directory created — nothing published. |
 | `duplicate_rowid` | `--month 2026-04 --chaos duplicate_rowid` | **WARN** `rowid_uniqueness` (not FAIL, per spec). Pipeline continued; `load.py`'s upsert-by-rowid absorbed the duplicate (`364873 -> 364873 rows, net +0`) — deduped, not appended. |
-| `stale_data` | `--since 3 --chaos stale_data` | **FAIL** `freshness`. Exit code 1. Only meaningful on a `--since`/current pull — a `--month` backfill of a historical month is already outside the freshness window by design (see `pipeline/validate.py`'s `check_freshness` docstring). |
+| `stale_data` | `--since 3 --chaos stale_data` | **FAIL** `freshness`. Exit code 1. (The original run also FAILed `timestamp_order_transport_dttm_before_hospital_dttm` on sampling noise, 9 of 720 pairs. Since the 2026-09-24 review, rate checks under 5,000 pairs cap at WARN. Re-validating that same raw pull now gives exactly one FAIL: freshness.) Only meaningful on a `--since`/current pull — a `--month` backfill of a historical month is already outside the freshness window by design (see `pipeline/validate.py`'s `check_freshness` docstring). |
 | `truncated_pagination` | `--month 2026-03 --chaos truncated_pagination` | **FAIL** `manifest_completeness` — on-disk row count no longer matched what `extract.py` originally claimed. Exit code 1. |
-| `late_update` | `--month 2026-02 --chaos late_update` | Passed validation normally (nothing broken). Re-running `load.py` afterward: warehouse row count unchanged (`364873 -> 364873`, net +0), but the amended row's `available_dttm`/`data_loaded_at` reflected the new value — confirmed directly by querying the warehouse for that `rowid`. Proves upsert, not duplicate-append. |
+| `late_update` | `--month 2026-02 --chaos late_update` | Passed validation normally (nothing broken). Warehouse row count unchanged (`364873 -> 364873`, net +0), but the amended row's `available_dttm`/`data_loaded_at` reflected the new value. Proves upsert, not duplicate-append. The run now logs this check itself (`[pipeline/chaos:late_update] verify`). |
 
 Two real bugs were caught and fixed via this testing, not just simulated:
 1. `check_timestamp_order`/`check_null_rates` crashing on a missing column (§2).
@@ -75,10 +75,40 @@ Two real bugs were caught and fixed via this testing, not just simulated:
    injected duplicate wasn't reflected in `manifest.json`'s row count — fixed by having the
    injector update the manifest, isolating each scenario to the check it's meant to demonstrate.
 
-## 5. Tests — 24/24 passing
+The 2026-09-24 review (`docs/review_findings.md`) found three more problems, all now fixed:
+3. **Chaos runs wrote to the production warehouse.** The `late_update` demo above left a fake,
+   "newer" row (rowid `260320014-B01`) that no real reload could overwrite, because the upsert only
+   accepts rows at least as new. Chaos runs now use a throwaway copy of the warehouse
+   (`data/processed/chaos_<run_id>.duckdb`, deleted when the run ends) and write to
+   `outputs/_chaos/`. The row was repaired from the untouched backfill pages
+   (`scripts/repair_chaos_row.py`). The warehouse is back to 364,873 rows and the row has its real
+   values again.
+4. **In-batch duplicate rowids were not deduplicated the way the WARN message claimed.** On a new
+   table, DuckDB silently kept the *older* copy. `upsert_calls` now keeps the latest
+   `data_loaded_at` per rowid and logs the count (`rule=dedupe_in_batch_rowid`).
+5. **The dashboard crashed** for any month without a published scorecard actual. That included
+   the README's own `--month 2026-07` quickstart and every `--since` run. Missing values now
+   render as "n/a", and the per-run pack headlines the month that was run.
 
-`python -m pytest tests/` → **24 passed in ~1.2s**. Hermetic: synthetic in-memory DuckDB
-fixtures, no network access or real data pull required.
+## 5. Tests — 99/99 passing
+
+`python -m pytest tests/` → **99 passed in ~7s** (24 at Phase 5; 75 added in the 2026-09-24
+review). Hermetic: synthetic in-memory DuckDB fixtures plus the committed one-day raw sample. No
+network access, and the real warehouse is never opened. CI runs the same suite on every push
+(`.github/workflows/tests.yml`).
+
+- `tests/test_end_to_end.py`: the committed `sample_day` + scorecard pages go through validate →
+  load → transform → metrics → report → save into temp dirs. It asserts that `fct_call` count
+  equals distinct calls (469), official 88.4% for 2026-06, and identical metrics on a reload. It
+  also drives `run_pipeline.run` for `--month`, `--since`, `--chaos missing_column` (exit 1, nothing
+  written) and `--chaos late_update` (throwaway warehouse only).
+- `tests/test_extract.py`, `test_load.py`, `test_metrics.py`, `test_report.py`, `test_save.py`,
+  `test_chaos.py`: retry/backoff with mocked HTTP, completeness failure, upsert idempotency and late
+  updates, in-batch duplicates, schema drift between pulls, reconciliation and M5, scope-month
+  summaries, dashboard "n/a" rendering and HTML escaping, atomic writes, each chaos injector.
+- The new tests surfaced two more real bugs, both fixed: a `--since` pull from a source that had
+  stalled for more than 48h passed freshness as "not applicable", and LOAD crashed when a later pull
+  lacked an optional column that Socrata omits when it is null on every row.
 
 - `tests/test_validate.py` (14 tests): severity threshold boundaries, schema check,
   rowid-uniqueness WARN-not-FAIL behavior, timestamp-order violation detection, priority-domain
@@ -86,13 +116,12 @@ fixtures, no network access or real data pull required.
 - `tests/test_definitions.py` (10 tests): `config/kpi_definitions.yaml` structural integrity
   (every definition has required fields, no definition is pre-marked confirmed, IDs unique), and
   `compute_m1_definition_monthly`'s core rules — target-minute boundary, the no-arrival-excluded-
-  from-denominator rule (`docs/assumptions.md` §5b), priority filtering, unit-scope column
+  from-denominator rule (`docs/assumptions.md` §5), priority filtering, unit-scope column
   selection.
 
 ## Known limitation of this gate
 
 All runs above used the anonymous Socrata rate limit (no `SOCRATA_APP_TOKEN` configured) — this
 worked reliably but slowly (~20-25s/month). The retry/backoff path in `pipeline/extract.py` exists
-and is exercised by real 429 responses under this rate limit, but was not independently unit-
-tested against a mocked failure sequence. Acceptable for this project's scale; would be worth a
-dedicated test before scaling to a much larger backfill window.
+and is exercised by real 429 responses under this rate limit. Since the 2026-09-24 review it is
+also unit-tested against mocked 429 / 404 / connection-error sequences (`tests/test_extract.py`).

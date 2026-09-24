@@ -88,6 +88,10 @@ actually reproduces the officially published `actual` values in `kc49-udxn` — 
 is the real evidence, not a search-engine summary. This is exactly the "which clock?" judgement
 call the brief anticipated (§4, §8) — it stays open until Phase 4 produces that comparison.
 
+**Update (Phase 4):** tested. Every dispatch-clock candidate fits the official number within
+3.5-5.0 points (mean absolute gap); every received-clock candidate is 21.6-22.1 points off. The
+call and its limits are in `docs/judgement_call.md`. Still unconfirmed by a primary document.
+
 ---
 
 ## 2026-09-23 — Backfill window sized and pulled; second retrieval mode added as a real cross-check, not a token file format
@@ -104,8 +108,8 @@ matched rows received exactly for every month (29,681 .. 33,174 rows/month; tota
 
 For the second retrieval mode required by the rubric ("≥2 modes across SQL, API, JSON/CSV/files"),
 considered pulling the true bulk export (`accessType=DOWNLOAD`, 7.44M rows, full 2000-present
-history) as brief §3 (S2) originally suggested, but rejected it: that file is two orders of
-magnitude larger than the analysis window needs, contradicts the brief's own "scope to 12 months"
+history) as brief §3 (S2) originally suggested, but rejected it: that file is about 20× larger
+(7.44M vs. 364,873 rows) than the analysis window needs, contradicts the brief's own "scope to 12 months"
 sizing decision (§11), and downloading it would cost real time for zero analytical value — we
 don't use pre-2025 data anywhere in this project.
 
@@ -119,3 +123,190 @@ retrieval paths for the same data — stronger evidence than a format swap alone
 **Why it matters:** Satisfies the retrieval-mode requirement with a real validation payoff instead
 of a checkbox exercise, and keeps local storage/runtime proportionate to what the project actually
 analyzes.
+
+---
+
+## 2026-09-23 — Exact quantiles (`quantile_cont`) instead of `approx_quantile`
+
+**Finding:** Two otherwise-identical runs gave different M2 p90 values (4.7 vs. 4.8 minutes).
+DuckDB's `approx_quantile` uses an approximate (t-digest) algorithm, so its result is not
+guaranteed to repeat run to run (`GATE2_DATA_READINESS.md` §3).
+
+**Options:**
+1. Keep `approx_quantile` and accept small run-to-run drift.
+2. Switch to exact `quantile_cont`.
+
+**Choice:** Option 2, in `pipeline/metrics.py` and the notebooks.
+
+**Why:** CLAUDE.md rule 7 (idempotent by default): a rerun of the same period must give the same
+numbers. At this project's data volume (~365k rows) exact quantiles are cheap. Re-verified:
+`metrics.json` identical across reruns after the change.
+
+---
+
+## 2026-09-23 — Durations computed as `date_diff('second', ...) / 60.0`, not `date_diff('minute', ...)`
+
+**Finding:** DuckDB's `date_diff('minute', a, b)` compares minute-truncated timestamps, not true
+elapsed time: 01:40:49 → 01:53:13 reports 13 minutes, not the true 12.4 (`pipeline/metrics.py`,
+`compute_m1_definition_monthly` docstring; `notebooks/03_workflow_model.ipynb`). That is up to
+~1 minute of bias, enough to flip calls sitting right at the 10-minute compliance boundary.
+
+**Options:**
+1. Keep minute-unit diffs (simpler, but biased).
+2. Diff in seconds and divide by 60.
+
+**Choice:** Option 2, for every duration in M1-M4.
+
+**Why:** The KPI is a threshold test at exactly 10 minutes, so truncation bias at the boundary
+changes the headline number, not just the decimals.
+
+---
+
+## 2026-09-23 — M3 travel time scoped to ambulances (`MEDIC`/`PRIVATE`) only
+
+**Finding:** Pooled over the 12-month window, en-route → on-scene across **all** unit types is
+p50 4.4 min / p90 15.3 min. Restricted to `MEDIC`/`PRIVATE` it is p50 7.4 min / p90 17.5 min
+(query: `quantile_cont(date_diff('second', response_dttm, on_scene_dttm)/60.0, …)` on
+`stg_unit_response`, same filters as `compute_m3_travel_time`; the p90 is 17.48, which the
+docstring in `pipeline/metrics.py` truncates to 17.4). Fire engines and trucks arrive faster and
+are more numerous, so they pull the all-units figure down.
+
+**Options:**
+1. All units (first-responder coverage).
+2. Ambulance units only.
+
+**Choice:** Option 2.
+
+**Why:** M3 is meant to inform ambulance deployment and positioning (`PROJECT_BRIEF.md` §6). The
+all-units figure measures something else (first-responder coverage) and would understate
+ambulance travel time by ~3 minutes at the median.
+
+---
+
+## 2026-09-23 — M1 denominator excludes calls with no recorded arrival
+
+**Finding:** A large share of unit responses have no `on_scene_dttm` (`docs/assumptions.md` §2).
+For the best-fitting definition, 51,668 eligible calls over 12 months had no MEDIC arrival
+recorded, against a denominator of 39,729 (`outputs/metrics.json` → `m1_kpi_monthly`, sum of
+`excluded_no_arrival` and `denominator`).
+
+**Options:**
+1. Count no-arrival calls as automatic misses.
+2. Exclude them from the ratio, and report the excluded count every month.
+
+**Choice:** Option 2 (`docs/assumptions.md` §5).
+
+**Why:** You can't measure time-to-arrival for a call nothing arrived at. Counting them as misses
+would mix two problems (slow response vs. no response) into one number. The exclusion is named
+and counted in `kpi_monthly.csv`, not hidden. This is the project's own choice,
+`confirmed_by_owner: false`.
+
+---
+
+## 2026-09-23 — Freshness check does not apply to a historical backfill
+
+**Finding:** The 12-month backfill (2025-07..2026-06) will always have an old `data_loaded_at`,
+because the window was chosen on purpose to end at the latest month with an official scorecard
+value. A plain "newest row within 48h" rule would FAIL every backfill.
+
+**Options:**
+1. Drop the freshness check.
+2. Keep it, but only judge pulls whose own data reaches near the present.
+
+**Choice:** Option 2 (`pipeline/validate.py`, `check_freshness` docstring). If the pull's newest
+`received_dttm` is already older than the threshold, the check PASSes with a "not applicable:
+historical window" note in the validation report. `--since` / current-month pulls are still
+checked.
+
+**Why:** Staleness means "the source stopped updating", not "we asked for old data on purpose".
+
+---
+
+## 2026-09-24 — Timestamp-order checks cap at WARN on small samples
+
+**Finding:** The timestamp-order violation thresholds (WARN > 0.05%, FAIL ≥ 1%) were calibrated
+on ~365k closed rows. A 3-day incremental pull (`--since 3`) has only ~720 transport/hospital
+pairs, so 9 violations = 1.25% → FAIL. The run stopped on sampling noise alone
+(`run_ts=20260923T174948Z`, `docs/review_findings.md` A4).
+
+**Options:**
+1. Separate thresholds for incremental pulls.
+2. Count-based thresholds instead of rates.
+3. A minimum sample size: below it, a rate check can WARN but not FAIL.
+
+**Choice:** Option 3. `config/validation_rules.yaml` → `min_pairs_for_fail: 5000`. Below 5,000
+compared pairs, a FAIL-level rate is capped at WARN and the check's metrics record
+`capped_small_sample: true`, so the cap is visible in the validation report.
+
+**Why:** One rule works for both backfills and incremental pulls, needs no second set of
+thresholds to tune, and keeps FAIL meaning "the data is broken", not "the sample is small".
+Full-month and backfill runs are far above 5,000 pairs, so their behaviour is unchanged.
+
+---
+
+## 2026-09-24 — Chaos runs isolated from the real warehouse
+
+**Finding:** `--chaos late_update` permanently wrote a fake row to the real warehouse: rowid
+`260320014-B01` got `available_dttm` / `data_loaded_at` = 2026-09-23. Because the fake
+`data_loaded_at` is newer than the real one, reloading the real raw data could never overwrite
+it ("latest `data_loaded_at` wins") (`docs/review_findings.md` A3).
+
+**Options:**
+1. Keep chaos on the real warehouse and undo each scenario afterwards.
+2. Run chaos against a throwaway copy of the warehouse and write outputs to `outputs/_chaos/`.
+
+**Choice:** Option 2. The damaged row was repaired with `scripts/repair_chaos_row.py`.
+
+**Why:** A failure test must never be able to change production numbers. Undo logic (option 1)
+can itself fail; isolation cannot leak.
+
+---
+
+## 2026-09-24 — p99.9 outlier check: WARN, flag only
+
+**Finding:** `outlier_p999_fields` was configured in `config/validation_rules.yaml` (brief §4, Q6)
+but no code read it (`docs/review_findings.md` A6).
+
+**Options:**
+1. Delete the dead config.
+2. Implement it as a FAIL, or as an exclusion rule.
+3. Implement it as a WARN-level, flag-only check.
+
+**Choice:** Option 3. The check reports values beyond the 99.9th percentile for each configured
+interval. It never excludes rows and never stops the run.
+
+**Why:** Metrics use medians and p90, which extreme values barely move. Excluding outliers would
+be a silent fix (CLAUDE.md rule 5); flagging them lets a person decide.
+
+---
+
+## 2026-09-24 — Correction: ambulance-hours lost ≈ 5 shifts/day, not 7.5
+
+**Finding:** `outputs/evidence_table.md` and `docs/decision_memo.md` said the 21,896
+ambulance-hours lost over 12 months equal "~7.5" / "7-8" twelve-hour shifts per day. The
+arithmetic is 21,896 ÷ 365 ÷ 12 ≈ **5.0** shifts per day. The wrong figure echoed the brief's
+"about 7 shifts per day", which came from a single month (July 2026) measured against the
+20-minute standard, and was not recomputed for this 12-month window and the 30-minute standard.
+
+**Choice:** Corrected to ~5 in both documents. The 21,896-hour figure itself was right.
+
+**Why it matters:** This was an arithmetic error, not a data error, and it overstated the
+headline by half. Logged so the correction is visible, not quietly patched.
+
+---
+
+## 2026-09-24 — Freshness is always judged on incremental (`--since`) runs
+
+**Finding:** A new end-to-end test showed that `check_freshness` treated any pull whose newest
+`received_dttm` was older than 48h as a "historical window" and PASSed it as not applicable. On a
+`--since` run, that is exactly the stalled-source case the check exists to catch.
+
+**Options:** (1) infer historical vs current from the data (old behaviour); (2) pass the run mode
+into the check.
+
+**Choice:** Option 2. `run_validation(..., incremental=True)` for `--since` runs, so freshness is
+always judged against `data_loaded_at`. Backfills and `--month` runs keep the existing
+"not applicable to a historical window" behaviour.
+
+**Why:** the run mode is known for certain; guessing it from the data let the failure it guards
+against pass silently.

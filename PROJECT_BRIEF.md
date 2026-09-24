@@ -4,6 +4,8 @@
 > Author: Aryan · Brief prepared 23 Sep 2026 · All numbers below were verified against live DataSF data on this date.
 > **Purpose of this file:** single source of truth for building the project with Claude Code. Put it in the repo root as `PROJECT_BRIEF.md`.
 
+> **Note (added 2026-09-24):** This brief is the original hypothesis, kept exactly as written. Some of its figures were later superseded by evidence from the pipeline: the 87.4% prototype reconstruction (see `docs/judgement_call.md`), the 20-minute hand-over standard (the measurable standard is the 30-minute turnaround in Policy 4000.1), the ~7 ambulance shifts/day (a single-month July figure; the 12-month figure is ~5), and the 35 blank priority codes (see `docs/assumptions.md` §1). These changes are tracked in `docs/decision_log.md` (and `docs/assumptions.md` for data findings). For current numbers use `outputs/evidence_table.md`.
+
 ---
 
 ## 1. Problem statement (the client story)

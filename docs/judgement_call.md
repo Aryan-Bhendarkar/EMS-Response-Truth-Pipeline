@@ -50,16 +50,19 @@ reproduction, not an exact one.
 being received.** This is not proven by a primary document (no SF EMS Agency or
 Controller's Office text we read states this explicitly — see `docs/source_map.md`'s "still
 open" section) — it is proven **empirically**, by testing every plausible definition against
-12 months of real official data and finding one clock choice wins by an order of magnitude
-over the alternative, consistently, every month.
+12 months of real official data and finding one clock choice wins by a wide margin — about 6×
+(3.5 vs. 21.6 points for the best definition on each clock) — consistently, every month.
 
 **What this means for the client:** the number SFFD publishes (88.4% in June 2026) reflects
 *dispatch-to-scene* performance. It does not include the time between a caller dialing 911
-and a unit being dispatched — call-taking, triage, and queueing (M2: median 2.3 min, p90
-4.9 min). From the caller's actual experience — phone ringing to help arriving — compliance
-is **worse than the published figure every single month** — a 17.1-point average gap over the
-full 12 months (`outputs/metrics.json` → `m5_definition_gap`, `clock_gap_points`), not a
-one-off finding from a single cherry-picked month.
+and a unit being dispatched — call-taking, triage, and queueing (M2: median 2.2 min, p90
+4.8 min). From the caller's actual experience — phone ringing to help arriving — compliance
+is **worse than the dispatch-clock figure every single month** — a 17.1-point average gap over
+the full 12 months for the configured pair `dispatch_final_ambulance` vs.
+`received_final_ambulance` (`outputs/metrics.json` → `m5_definition_gap`, `clock_gap_points`;
+monthly range 15.8-18.3), and 18.1 points for the like-for-like twin of the best-fitting
+definition (`dispatch_original_medic` vs. `received_original_medic`) — not a one-off finding
+from a single cherry-picked month.
 
 ## Why this is the judgement call, not just a finding
 
@@ -73,5 +76,5 @@ slightly different unit-inclusion rule at the margins).
 **Recommendation to the client (see `docs/decision_memo.md`):** publish both numbers. The
 dispatch-clock figure is what the operational team controls and should keep as the internal
 performance measure. The received-clock figure is what the public and press actually
-experience and should be published alongside it, with the ~17-point gap explained as
+experience and should be published alongside it, with the ~17-18-point gap explained as
 call-processing + queueing time — currently invisible in the number SF publishes today.

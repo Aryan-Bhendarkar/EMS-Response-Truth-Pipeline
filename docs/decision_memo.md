@@ -11,26 +11,33 @@
 1. **The published 88.4% (June 2026) is reproducible, within ~3.5 points, using a dispatch
    clock.** Testing five plausible definitions against 12 months of real scorecard data, the
    one starting the 10-minute timer at *dispatch* (not the 911 call being received), scoped to
-   SFFD's own ambulances, reproduces the official number far better than any alternative — an
-   order-of-magnitude better fit than any definition starting the clock at the 911 call
-   (3.5-point average gap vs. 17-22 points). See `docs/judgement_call.md`.
+   SFFD's own ambulances, reproduces the official number far better than any alternative —
+   about a 6× better fit than any definition starting the clock at the 911 call (3.5-point
+   average gap vs. 21.6-22.1 points). See `docs/judgement_call.md`.
 
 2. **What callers experience is materially worse than what's published.** Measured from the
    911 call being received — what a caller and the press actually experience — compliance
-   averages 17 percentage points below the published number, every single month for 12 months
-   straight. This is not a one-off finding.
+   averages 17 percentage points below the same definition measured from dispatch (monthly range
+   15.8-18.3; 18.1 points for the like-for-like twin of the best-fitting definition), every
+   single month for 12 months straight. This is not a one-off finding.
 
 3. **Hospital turnaround, not dispatch or travel, is where ambulance capacity is actually
    lost.** Median call-processing time is 2.2 minutes; median ambulance travel time is 7.4
    minutes. Median hospital turnaround (arrival at ED to returning to service) is **41.7
-   minutes** — against a 30-minute policy standard 90% of the time. 83% of transports miss that
-   standard. Over 12 months, that's an estimated **21,896 ambulance-hours** lost beyond the
-   standard — roughly 7-8 twelve-hour ambulance shifts, every day, system-wide.
+   minutes** — against a 30-minute policy standard 90% of the time (SF EMS Agency Policy 4000.1,
+   effective 2026-10-01 — after this analysis window, so it is used as the forward-looking
+   benchmark; the standard in force during the window was not located). 83% of transports miss
+   that standard. Over 12 months, that's an estimated **21,896 ambulance-hours** lost beyond the
+   standard — about 5 twelve-hour ambulance shifts (21,896 ÷ 365 ÷ 12 ≈ 5.0), every day,
+   system-wide. The interval also includes cleaning and restocking the ambulance after
+   hand-over, so this overstates the hospital's own share of the loss.
 
 4. **The 20-minute offload standard (Policy 4000.1) cannot currently be measured at all.** It
    requires a hospital-EHR timestamp (patient physically off the gurney, care transferred) that
-   doesn't exist in the CAD dispatch data. The 30-minute figure above is a lower bound on the
-   real problem, not the full picture.
+   doesn't exist in the CAD dispatch data. Measured against the 30-minute turnaround standard,
+   the figure above is an upper bound on the hospital's share (it includes cleaning/restocking).
+   Against the stricter 20-minute offload standard, the true shortfall is likely larger — but it
+   cannot be measured with this data, so it is not estimated.
 
 ## Recommendation
 

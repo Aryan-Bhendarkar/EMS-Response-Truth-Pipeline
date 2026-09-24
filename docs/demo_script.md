@@ -29,7 +29,7 @@ python run_pipeline.py --month 2026-06
 
 Let it run (~30-60s). While it runs:
 
-> "One command: extract from the SODA API with pagination and retry, validate against 13 named
+> "One command: extract from the SODA API with pagination and retry, validate against 15 named
 > business rules, load into DuckDB with an idempotent upsert, run the SQL models, compute five
 > candidate KPI definitions, reconcile against the real official scorecard, and write a
 > dashboard — all in one shot."
@@ -78,11 +78,11 @@ Show the reconciliation table.
 
 > "The clock start dominates everything else. Every definition starting the timer at
 > *dispatch* lands within 5 points of the official number. Every definition starting at the
-> *911 call being received* — what the caller actually experiences — is off by 17 to 22
-> points. Not from one lucky month; every single month, for a year.
+> *911 call being received* — what the caller actually experiences — is off by 21.6 to
+> 22.1 points. Not from one lucky month; every single month, for a year.
 >
 > That's the finding: the number SF publishes measures dispatch-to-scene time. It hides
-> roughly 17 points of call-processing and queueing time that happens *before* dispatch. My
+> roughly 17-18 points of call-processing and queueing time that happens *before* dispatch. My
 > recommendation is to publish both numbers, not just one."
 
 ## 4:30-5:00 — Close

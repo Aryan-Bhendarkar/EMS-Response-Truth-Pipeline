@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-09-24T06:18:25.559730+00:00",
-  "run_ts": "20260924T061747Z",
+  "generated_at": "2026-09-24T09:43:53.600076+00:00",
+  "run_ts": "20260924T094312Z",
   "scope": "single month 2026-06",
   "overall_status": "WARN",
   "checks": [
@@ -196,7 +196,7 @@
       "description": "The newest data_loaded_at across all pulled rows must be within 48h of now \u2014 but only for pulls whose own data extends near the present.",
       "metric": {
         "max_received_dttm": "2026-06-30 23:58:44",
-        "received_age_hours": 2046.33,
+        "received_age_hours": 2049.75,
         "threshold_hours": 48,
         "note": "not applicable: this pull's most recent received_dttm is already older than the threshold, so it's a deliberate historical window (e.g. --backfill), not a current/incremental pull."
       },

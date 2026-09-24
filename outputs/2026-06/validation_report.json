@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-09-23T17:45:01.208745+00:00",
-  "run_ts": "20260923T174421Z",
+  "generated_at": "2026-09-24T06:18:25.559730+00:00",
+  "run_ts": "20260924T061747Z",
   "scope": "single month 2026-06",
   "overall_status": "WARN",
   "checks": [
@@ -21,7 +21,7 @@
       "severity": "PASS",
       "description": "Every column downstream SQL models depend on must be present in the raw pull.",
       "metric": {
-        "required": 18,
+        "required": 27,
         "missing": []
       },
       "action": "None."
@@ -81,7 +81,9 @@
         "pair": "dispatch_dttm_before_response_dttm",
         "both_present": 28033,
         "violations": 1,
-        "rate": 3.6e-05
+        "rate": 3.6e-05,
+        "min_pairs_for_fail": 5000,
+        "capped_small_sample": false
       },
       "action": "None."
     },
@@ -93,7 +95,9 @@
         "pair": "response_dttm_before_on_scene_dttm",
         "both_present": 22534,
         "violations": 0,
-        "rate": 0.0
+        "rate": 0.0,
+        "min_pairs_for_fail": 5000,
+        "capped_small_sample": false
       },
       "action": "None."
     },
@@ -105,7 +109,9 @@
         "pair": "on_scene_dttm_before_transport_dttm",
         "both_present": 6926,
         "violations": 1,
-        "rate": 0.000144
+        "rate": 0.000144,
+        "min_pairs_for_fail": 5000,
+        "capped_small_sample": false
       },
       "action": "None."
     },
@@ -117,7 +123,9 @@
         "pair": "transport_dttm_before_hospital_dttm",
         "both_present": 6849,
         "violations": 35,
-        "rate": 0.00511
+        "rate": 0.00511,
+        "min_pairs_for_fail": 5000,
+        "capped_small_sample": false
       },
       "action": "Continue; rows where hospital_dttm < transport_dttm are excluded from interval metrics built on this pair and counted, per brief Q5 \u2014 not silently dropped from the dataset."
     },
@@ -129,9 +137,37 @@
         "pair": "hospital_dttm_before_available_dttm",
         "both_present": 6849,
         "violations": 33,
-        "rate": 0.004818
+        "rate": 0.004818,
+        "min_pairs_for_fail": 5000,
+        "capped_small_sample": false
       },
       "action": "Continue; rows where available_dttm < hospital_dttm are excluded from interval metrics built on this pair and counted, per brief Q5 \u2014 not silently dropped from the dataset."
+    },
+    {
+      "rule_id": "outlier_p999_received_dttm_to_dispatch_dttm_minutes",
+      "severity": "WARN",
+      "description": "Extreme received_dttm -> dispatch_dttm intervals (above the 99.9th percentile) are kept, not excluded, but flagged so a human can review them (brief Q6).",
+      "metric": {
+        "field": "received_dttm_to_dispatch_dttm_minutes",
+        "rows_measured": 28737,
+        "p999_threshold_minutes": 213.93,
+        "rows_above_p999": 29,
+        "max_minutes": 1117.55
+      },
+      "action": "Continue. 29 row(s) above p99.9 (213.93 min; max 1117.55 min) stay in every metric - flagged for review only."
+    },
+    {
+      "rule_id": "outlier_p999_hospital_dttm_to_available_dttm_minutes",
+      "severity": "WARN",
+      "description": "Extreme hospital_dttm -> available_dttm intervals (above the 99.9th percentile) are kept, not excluded, but flagged so a human can review them (brief Q6).",
+      "metric": {
+        "field": "hospital_dttm_to_available_dttm_minutes",
+        "rows_measured": 6849,
+        "p999_threshold_minutes": 147.22,
+        "rows_above_p999": 7,
+        "max_minutes": 775.8
+      },
+      "action": "Continue. 7 row(s) above p99.9 (147.22 min; max 775.8 min) stay in every metric - flagged for review only."
     },
     {
       "rule_id": "priority_domain",
@@ -160,7 +196,7 @@
       "description": "The newest data_loaded_at across all pulled rows must be within 48h of now \u2014 but only for pulls whose own data extends near the present.",
       "metric": {
         "max_received_dttm": "2026-06-30 23:58:44",
-        "received_age_hours": 2033.77,
+        "received_age_hours": 2046.33,
         "threshold_hours": 48,
         "note": "not applicable: this pull's most recent received_dttm is already older than the threshold, so it's a deliberate historical window (e.g. --backfill), not a current/incremental pull."
       },

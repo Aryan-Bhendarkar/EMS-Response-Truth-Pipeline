@@ -1,6 +1,9 @@
 {
+  "scope_month": "2026-06",
+  "scope_month_basis": "latest month in warehouse (none requested)",
   "target_minutes": 10,
   "target_pct": 0.9,
+  "official_measure_code": "973",
   "official_scorecard_by_month": {
     "2014-03": 0.84906231,
     "2014-04": 0.88655701,
@@ -723,7 +726,7 @@
   "m2_call_processing_p50_p90": [
     {
       "month": "2025-07",
-      "p50_minutes": 2.3,
+      "p50_minutes": 2.2,
       "p90_minutes": 4.9,
       "n": 14911
     },
@@ -736,7 +739,7 @@
     {
       "month": "2025-09",
       "p50_minutes": 2.2,
-      "p90_minutes": 4.7,
+      "p90_minutes": 4.8,
       "n": 15268
     },
     {
@@ -810,7 +813,7 @@
     {
       "month": "2025-09",
       "p50_minutes": 7.5,
-      "p90_minutes": 18.0,
+      "p90_minutes": 17.9,
       "n": 9075
     },
     {
@@ -827,7 +830,7 @@
     },
     {
       "month": "2025-12",
-      "p50_minutes": 7.7,
+      "p50_minutes": 7.8,
       "p90_minutes": 18.1,
       "n": 9576
     },
@@ -845,7 +848,7 @@
     },
     {
       "month": "2026-03",
-      "p50_minutes": 7.3,
+      "p50_minutes": 7.2,
       "p90_minutes": 17.1,
       "n": 9576
     },
@@ -863,7 +866,7 @@
     },
     {
       "month": "2026-06",
-      "p50_minutes": 7.4,
+      "p50_minutes": 7.5,
       "p90_minutes": 17.3,
       "n": 9137
     }
@@ -875,7 +878,7 @@
       "n_over_standard": 5702,
       "pct_over_standard": 0.8248,
       "p50_minutes": 41.0,
-      "p90_minutes": 64.1,
+      "p90_minutes": 64.0,
       "ambulance_hours_lost": 1706.8
     },
     {
@@ -902,7 +905,7 @@
       "n_over_standard": 5983,
       "pct_over_standard": 0.8263,
       "p50_minutes": 41.4,
-      "p90_minutes": 65.2,
+      "p90_minutes": 65.1,
       "ambulance_hours_lost": 1832.7
     },
     {
@@ -920,7 +923,7 @@
       "n_over_standard": 6258,
       "pct_over_standard": 0.8428,
       "p50_minutes": 42.6,
-      "p90_minutes": 68.0,
+      "p90_minutes": 67.9,
       "ambulance_hours_lost": 2062.9
     },
     {
@@ -929,7 +932,7 @@
       "n_over_standard": 6270,
       "pct_over_standard": 0.844,
       "p50_minutes": 43.5,
-      "p90_minutes": 67.9,
+      "p90_minutes": 67.8,
       "ambulance_hours_lost": 2098.4
     },
     {
@@ -947,7 +950,7 @@
       "n_over_standard": 6192,
       "pct_over_standard": 0.8424,
       "p50_minutes": 42.3,
-      "p90_minutes": 66.9,
+      "p90_minutes": 67.0,
       "ambulance_hours_lost": 1959.5
     },
     {
@@ -973,7 +976,7 @@
       "n_transports": 6816,
       "n_over_standard": 5602,
       "pct_over_standard": 0.8219,
-      "p50_minutes": 40.8,
+      "p50_minutes": 40.7,
       "p90_minutes": 64.3,
       "ambulance_hours_lost": 1671.7
     }
@@ -986,6 +989,14 @@
     "offload_measurable_from_this_dataset": false,
     "offload_blocker": "APOT-1 requires a hospital-EHR signature timestamp not present in nuek-vuh3 (docs/decision_log.md)"
   },
+  "m5_clock_gap_pair": {
+    "dispatch_clock": "dispatch_final_ambulance",
+    "received_clock": "received_final_ambulance"
+  },
+  "m5_best_fit_twin": {
+    "dispatch_clock": "dispatch_original_medic",
+    "received_clock": "received_original_medic"
+  },
   "m5_definition_gap": [
     {
       "month": "2025-07",
@@ -993,7 +1004,10 @@
       "m1_dispatch_clock_pct": 0.8437,
       "clock_gap_points": 17.3,
       "official_pct": 0.88,
-      "official_vs_dispatch_gap_points": 3.6
+      "official_vs_dispatch_gap_points": 3.6,
+      "best_fit_twin_received_clock_pct": 0.6668,
+      "best_fit_twin_dispatch_clock_pct": 0.8469,
+      "best_fit_twin_gap_points": 18.0
     },
     {
       "month": "2025-08",
@@ -1001,7 +1015,10 @@
       "m1_dispatch_clock_pct": 0.8314,
       "clock_gap_points": 18.2,
       "official_pct": 0.88,
-      "official_vs_dispatch_gap_points": 4.9
+      "official_vs_dispatch_gap_points": 4.9,
+      "best_fit_twin_received_clock_pct": 0.6505,
+      "best_fit_twin_dispatch_clock_pct": 0.8349,
+      "best_fit_twin_gap_points": 18.4
     },
     {
       "month": "2025-09",
@@ -1009,7 +1026,10 @@
       "m1_dispatch_clock_pct": 0.8222,
       "clock_gap_points": 16.8,
       "official_pct": 0.882,
-      "official_vs_dispatch_gap_points": 6.0
+      "official_vs_dispatch_gap_points": 6.0,
+      "best_fit_twin_received_clock_pct": 0.6548,
+      "best_fit_twin_dispatch_clock_pct": 0.8321,
+      "best_fit_twin_gap_points": 17.7
     },
     {
       "month": "2025-10",
@@ -1017,7 +1037,10 @@
       "m1_dispatch_clock_pct": 0.8101,
       "clock_gap_points": 16.0,
       "official_pct": 0.86,
-      "official_vs_dispatch_gap_points": 5.0
+      "official_vs_dispatch_gap_points": 5.0,
+      "best_fit_twin_received_clock_pct": 0.6545,
+      "best_fit_twin_dispatch_clock_pct": 0.8256,
+      "best_fit_twin_gap_points": 17.1
     },
     {
       "month": "2025-11",
@@ -1025,7 +1048,10 @@
       "m1_dispatch_clock_pct": 0.8264,
       "clock_gap_points": 16.7,
       "official_pct": 0.88,
-      "official_vs_dispatch_gap_points": 5.4
+      "official_vs_dispatch_gap_points": 5.4,
+      "best_fit_twin_received_clock_pct": 0.6541,
+      "best_fit_twin_dispatch_clock_pct": 0.8348,
+      "best_fit_twin_gap_points": 18.1
     },
     {
       "month": "2025-12",
@@ -1033,7 +1059,10 @@
       "m1_dispatch_clock_pct": 0.7983,
       "clock_gap_points": 17.3,
       "official_pct": 0.85,
-      "official_vs_dispatch_gap_points": 5.2
+      "official_vs_dispatch_gap_points": 5.2,
+      "best_fit_twin_received_clock_pct": 0.6275,
+      "best_fit_twin_dispatch_clock_pct": 0.8173,
+      "best_fit_twin_gap_points": 19.0
     },
     {
       "month": "2026-01",
@@ -1041,7 +1070,10 @@
       "m1_dispatch_clock_pct": 0.8078,
       "clock_gap_points": 17.9,
       "official_pct": 0.863,
-      "official_vs_dispatch_gap_points": 5.5
+      "official_vs_dispatch_gap_points": 5.5,
+      "best_fit_twin_received_clock_pct": 0.6425,
+      "best_fit_twin_dispatch_clock_pct": 0.8264,
+      "best_fit_twin_gap_points": 18.4
     },
     {
       "month": "2026-02",
@@ -1049,7 +1081,10 @@
       "m1_dispatch_clock_pct": 0.8202,
       "clock_gap_points": 18.3,
       "official_pct": 0.873,
-      "official_vs_dispatch_gap_points": 5.3
+      "official_vs_dispatch_gap_points": 5.3,
+      "best_fit_twin_received_clock_pct": 0.6424,
+      "best_fit_twin_dispatch_clock_pct": 0.8379,
+      "best_fit_twin_gap_points": 19.6
     },
     {
       "month": "2026-03",
@@ -1057,7 +1092,10 @@
       "m1_dispatch_clock_pct": 0.823,
       "clock_gap_points": 16.8,
       "official_pct": 0.875,
-      "official_vs_dispatch_gap_points": 5.2
+      "official_vs_dispatch_gap_points": 5.2,
+      "best_fit_twin_received_clock_pct": 0.6693,
+      "best_fit_twin_dispatch_clock_pct": 0.8535,
+      "best_fit_twin_gap_points": 18.4
     },
     {
       "month": "2026-04",
@@ -1065,7 +1103,10 @@
       "m1_dispatch_clock_pct": 0.8332,
       "clock_gap_points": 16.3,
       "official_pct": 0.885,
-      "official_vs_dispatch_gap_points": 5.2
+      "official_vs_dispatch_gap_points": 5.2,
+      "best_fit_twin_received_clock_pct": 0.6796,
+      "best_fit_twin_dispatch_clock_pct": 0.8532,
+      "best_fit_twin_gap_points": 17.4
     },
     {
       "month": "2026-05",
@@ -1073,7 +1114,10 @@
       "m1_dispatch_clock_pct": 0.8261,
       "clock_gap_points": 15.8,
       "official_pct": 0.868,
-      "official_vs_dispatch_gap_points": 4.2
+      "official_vs_dispatch_gap_points": 4.2,
+      "best_fit_twin_received_clock_pct": 0.6673,
+      "best_fit_twin_dispatch_clock_pct": 0.8403,
+      "best_fit_twin_gap_points": 17.3
     },
     {
       "month": "2026-06",
@@ -1081,7 +1125,112 @@
       "m1_dispatch_clock_pct": 0.8363,
       "clock_gap_points": 17.4,
       "official_pct": 0.884,
-      "official_vs_dispatch_gap_points": 4.8
+      "official_vs_dispatch_gap_points": 4.8,
+      "best_fit_twin_received_clock_pct": 0.6771,
+      "best_fit_twin_dispatch_clock_pct": 0.856,
+      "best_fit_twin_gap_points": 17.9
     }
-  ]
+  ],
+  "scope_month_summary": {
+    "month": "2026-06",
+    "in_warehouse": true,
+    "target_pct": 0.9,
+    "target_minutes": 10,
+    "official_pct": 0.884,
+    "m1_best_fitting_definition": "dispatch_original_medic",
+    "m1_by_definition": [
+      {
+        "definition_id": "dispatch_original_medic",
+        "label": "Clock=dispatch, priority=original in {3,E}, units=MEDIC only",
+        "pct": 0.856,
+        "numerator": 2781,
+        "denominator": 3249,
+        "meets_target": false,
+        "gap_to_target_points": -4.4,
+        "gap_to_official_points": -2.8,
+        "mean_absolute_gap_full_history": 0.0351,
+        "is_best_fit": true
+      },
+      {
+        "definition_id": "dispatch_final_ambulance",
+        "label": "Clock=dispatch, priority=final=3, units=MEDIC+PRIVATE",
+        "pct": 0.8363,
+        "numerator": 4062,
+        "denominator": 4857,
+        "meets_target": false,
+        "gap_to_target_points": -6.4,
+        "gap_to_official_points": -4.8,
+        "mean_absolute_gap_full_history": 0.0501,
+        "is_best_fit": false
+      },
+      {
+        "definition_id": "dispatch_ctg_any_responder",
+        "label": "Clock=dispatch, call_type_group=Potentially Life-Threatening, units=any",
+        "pct": 0.8321,
+        "numerator": 5244,
+        "denominator": 6302,
+        "meets_target": false,
+        "gap_to_target_points": -6.8,
+        "gap_to_official_points": -5.2,
+        "mean_absolute_gap_full_history": 0.0358,
+        "is_best_fit": false
+      },
+      {
+        "definition_id": "received_final_ambulance",
+        "label": "Clock=911 call received, priority=final=3, units=MEDIC+PRIVATE",
+        "pct": 0.6628,
+        "numerator": 3219,
+        "denominator": 4857,
+        "meets_target": false,
+        "gap_to_target_points": -23.7,
+        "gap_to_official_points": -22.1,
+        "mean_absolute_gap_full_history": 0.2208,
+        "is_best_fit": false
+      },
+      {
+        "definition_id": "received_original_medic",
+        "label": "Clock=911 call received, priority=original in {3,E}, units=MEDIC only",
+        "pct": 0.6771,
+        "numerator": 2200,
+        "denominator": 3249,
+        "meets_target": false,
+        "gap_to_target_points": -22.3,
+        "gap_to_official_points": -20.7,
+        "mean_absolute_gap_full_history": 0.2161,
+        "is_best_fit": false
+      }
+    ],
+    "m2_call_processing": {
+      "month": "2026-06",
+      "p50_minutes": 2.2,
+      "p90_minutes": 4.9,
+      "n": 14676
+    },
+    "m3_travel_time": {
+      "month": "2026-06",
+      "p50_minutes": 7.5,
+      "p90_minutes": 17.3,
+      "n": 9137
+    },
+    "m4_hospital_turnaround": {
+      "month": "2026-06",
+      "n_transports": 6816,
+      "n_over_standard": 5602,
+      "pct_over_standard": 0.8219,
+      "p50_minutes": 40.7,
+      "p90_minutes": 64.3,
+      "ambulance_hours_lost": 1671.7
+    },
+    "m5_definition_gap": {
+      "month": "2026-06",
+      "m1_received_clock_pct": 0.6628,
+      "m1_dispatch_clock_pct": 0.8363,
+      "clock_gap_points": 17.4,
+      "official_pct": 0.884,
+      "official_vs_dispatch_gap_points": 4.8,
+      "best_fit_twin_received_clock_pct": 0.6771,
+      "best_fit_twin_dispatch_clock_pct": 0.856,
+      "best_fit_twin_gap_points": 17.9
+    }
+  }
 }

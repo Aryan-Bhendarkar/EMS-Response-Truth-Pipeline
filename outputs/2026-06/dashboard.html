@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SF EMS Response — 2026-06</title>
 
 <style>
@@ -13,7 +14,9 @@
   h1 { font-size: 22px; margin-bottom: 4px; }
   h2 { font-size: 16px; color: var(--muted); font-weight: 600; margin-top: 40px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
   .subtitle { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
-  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; overflow-x: auto; }
+  .note { background: rgba(245,184,73,.10); border: 1px solid rgba(245,184,73,.35); color: var(--warn);
+          border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; font-size: 13px; }
   .kpi-row { display: flex; gap: 16px; flex-wrap: wrap; }
   .kpi-card { flex: 1; min-width: 190px; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
   .kpi-value { font-size: 28px; font-weight: 700; }
@@ -22,6 +25,7 @@
   .badge-pass { background: rgba(62,207,142,.15); color: var(--pass); }
   .badge-warn { background: rgba(245,184,73,.15); color: var(--warn); }
   .badge-fail { background: rgba(240,85,107,.15); color: var(--fail); }
+  .muted { color: var(--muted); }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
   th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--border); }
   th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .03em; }
@@ -37,8 +41,9 @@
 </head>
 <body>
   <h1>EMS Response Truth Pipeline</h1>
-  <div class="subtitle">Run for 2026-06 &middot; generated 2026-09-23 17:45 UTC &middot; gate status <span class="badge badge-warn">WARN</span></div>
+  <div class="subtitle">Run for 2026-06 &middot; headline month 2026-06 &middot; generated 2026-09-24 06:18 UTC &middot; gate status <span class="badge badge-warn">WARN</span></div>
 
+  
   <div class="kpi-row">
     <div class="kpi-card">
       <div class="kpi-value">85.6%</div>
@@ -46,15 +51,24 @@
     </div>
     <div class="kpi-card">
       <div class="kpi-value">88.4%</div>
-      <div class="kpi-label">Official scorecard, same month</div>
+      <div class="kpi-label">Official scorecard, 2026-06</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-value">21,896</div>
-      <div class="kpi-label">Ambulance-hours lost to hospital turnaround &gt; 30 min (12 mo.)</div>
+      <div class="kpi-value">1,672</div>
+      <div class="kpi-label">Ambulance-hours lost to hospital turnaround &gt; 30 min, 2026-06
+        (21,896 over 12 mo., 2025-07&ndash;2026-06)</div>
     </div>
   </div>
 
-  <h2>M1 — which definition reproduces the official number?</h2>
+  <h2>M1 — every candidate definition, 2026-06, vs the 90% target and the official value</h2>
+  <div class="panel">
+    <table>
+      <tr><th>Definition</th><th>Value</th><th>vs 90% target</th><th>Official</th><th>Gap to official</th><th>Calls within / scored</th><th></th></tr>
+      <tr class="best"><td>Clock=dispatch, priority=original in {3,E}, units=MEDIC only</td><td>85.6%</td><td>below by 4.4 pts</td><td>88.4%</td><td>-2.8 pts</td><td class="muted">2,781 / 3,249</td><td>&#9733; best fit</td></tr><tr class=""><td>Clock=dispatch, priority=final=3, units=MEDIC+PRIVATE</td><td>83.6%</td><td>below by 6.4 pts</td><td>88.4%</td><td>-4.8 pts</td><td class="muted">4,062 / 4,857</td><td></td></tr><tr class=""><td>Clock=dispatch, call_type_group=Potentially Life-Threatening, units=any</td><td>83.2%</td><td>below by 6.8 pts</td><td>88.4%</td><td>-5.2 pts</td><td class="muted">5,244 / 6,302</td><td></td></tr><tr class=""><td>Clock=911 call received, priority=final=3, units=MEDIC+PRIVATE</td><td>66.3%</td><td>below by 23.7 pts</td><td>88.4%</td><td>-22.1 pts</td><td class="muted">3,219 / 4,857</td><td></td></tr><tr class=""><td>Clock=911 call received, priority=original in {3,E}, units=MEDIC only</td><td>67.7%</td><td>below by 22.3 pts</td><td>88.4%</td><td>-20.7 pts</td><td class="muted">2,200 / 3,249</td><td></td></tr>
+    </table>
+  </div>
+
+  <h2>M1 — which definition reproduces the official number? (full history)</h2>
   <div class="panel">
     <table>
       <tr><th>Definition</th><th>Months compared</th><th>Mean gap to official</th><th></th></tr>
@@ -62,18 +76,18 @@
     </table>
   </div>
 
-  <h2>Where time is lost (most recent month, per-step median)</h2>
+  <h2>Where time is lost (2026-06, per-step median)</h2>
   <div class="panel">
     <div class="bar-row"><div class="bar-label">Call processing (M2)</div><div class="bar-track"><div class="bar-fill" style="width:5%"></div></div><div class="bar-value">2.2 min</div></div>
     <div class="bar-row"><div class="bar-label">Ambulance travel (M3)</div><div class="bar-track"><div class="bar-fill" style="width:18%"></div></div><div class="bar-value">7.5 min</div></div>
     <div class="bar-row"><div class="bar-label">Hospital turnaround (M4)</div><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><div class="bar-value">40.7 min</div></div>
   </div>
 
-  <h2>M4 — hospital turnaround trend (30-min standard)</h2>
+  <h2>M4 — hospital turnaround trend (30-min standard, full history)</h2>
   <div class="panel">
     <table>
       <tr><th>Month</th><th>Transports</th><th>% over standard</th><th>p50 min</th><th>p90 min</th><th>Ambulance-hrs lost</th></tr>
-      <tr><td>2025-07</td><td>6913</td><td>82.5%</td><td>41.0</td><td>64.0</td><td>1707</td></tr><tr><td>2025-08</td><td>7110</td><td>82.3%</td><td>40.9</td><td>64.3</td><td>1738</td></tr><tr><td>2025-09</td><td>6983</td><td>81.4%</td><td>40.2</td><td>63.4</td><td>1669</td></tr><tr><td>2025-10</td><td>7241</td><td>82.6%</td><td>41.4</td><td>65.1</td><td>1833</td></tr><tr><td>2025-11</td><td>6585</td><td>81.7%</td><td>41.3</td><td>63.6</td><td>1618</td></tr><tr><td>2025-12</td><td>7425</td><td>84.3%</td><td>42.6</td><td>67.9</td><td>2063</td></tr><tr><td>2026-01</td><td>7429</td><td>84.4%</td><td>43.5</td><td>67.8</td><td>2098</td></tr><tr><td>2026-02</td><td>6945</td><td>85.3%</td><td>43.7</td><td>68.3</td><td>2016</td></tr><tr><td>2026-03</td><td>7350</td><td>84.2%</td><td>42.3</td><td>67.0</td><td>1960</td></tr><tr><td>2026-04</td><td>7048</td><td>83.9%</td><td>41.9</td><td>64.3</td><td>1762</td></tr><tr><td>2026-05</td><td>7353</td><td>81.8%</td><td>41.1</td><td>63.1</td><td>1762</td></tr><tr><td>2026-06</td><td>6816</td><td>82.2%</td><td>40.7</td><td>64.3</td><td>1672</td></tr>
+      <tr class=""><td>2025-07</td><td>6,913</td><td>82.5%</td><td>41.0</td><td>64.0</td><td>1,707</td></tr><tr class=""><td>2025-08</td><td>7,110</td><td>82.3%</td><td>40.9</td><td>64.3</td><td>1,738</td></tr><tr class=""><td>2025-09</td><td>6,983</td><td>81.4%</td><td>40.2</td><td>63.4</td><td>1,669</td></tr><tr class=""><td>2025-10</td><td>7,241</td><td>82.6%</td><td>41.4</td><td>65.1</td><td>1,833</td></tr><tr class=""><td>2025-11</td><td>6,585</td><td>81.7%</td><td>41.3</td><td>63.6</td><td>1,618</td></tr><tr class=""><td>2025-12</td><td>7,425</td><td>84.3%</td><td>42.6</td><td>67.9</td><td>2,063</td></tr><tr class=""><td>2026-01</td><td>7,429</td><td>84.4%</td><td>43.5</td><td>67.8</td><td>2,098</td></tr><tr class=""><td>2026-02</td><td>6,945</td><td>85.3%</td><td>43.7</td><td>68.3</td><td>2,016</td></tr><tr class=""><td>2026-03</td><td>7,350</td><td>84.2%</td><td>42.3</td><td>67.0</td><td>1,960</td></tr><tr class=""><td>2026-04</td><td>7,048</td><td>83.9%</td><td>41.9</td><td>64.3</td><td>1,762</td></tr><tr class=""><td>2026-05</td><td>7,353</td><td>81.8%</td><td>41.1</td><td>63.1</td><td>1,762</td></tr><tr class="best"><td>2026-06</td><td>6,816</td><td>82.2%</td><td>40.7</td><td>64.3</td><td>1,672</td></tr>
     </table>
   </div>
 
@@ -81,13 +95,13 @@
   <div class="panel">
     <table>
       <tr><th>Rule</th><th>Severity</th><th>Action</th></tr>
-      <tr><td>manifest_completeness</td><td><span class="badge badge-pass">PASS</span></td><td>None.</td></tr><tr><td>schema_required_columns</td><td><span class="badge badge-pass">PASS</span></td><td>None.</td></tr><tr><td>rowid_uniqueness</td><td><span class="badge badge-pass">PASS</span></td><td>None.</td></tr><tr><td>null_rate_response_dttm</td><td><span class="badge badge-warn">WARN</span></td><td>Continue; excluded from metrics that require response_dttm, counted separately per brief Q4/Q9 (cancelled / unable-to-locate / genuinely-missing all fall here).</td></tr><tr><td>null_rate_on_scene_dttm</td><td><span class="badge badge-warn">WARN</span></td><td>Continue; excluded from metrics that require on_scene_dttm, counted separately per brief Q4/Q9 (cancelled / unable-to-locate / genuinely-missing all fall here).</td></tr><tr><td>null_rate_call_type_group</td><td><span class="badge badge-warn">WARN</span></td><td>Continue; excluded from metrics that require call_type_group, counted separately per brief Q4/Q9 (cancelled / unable-to-locate / genuinely-missing all fall here).</td></tr><tr><td>timestamp_order_dispatch_dttm_before_response_dttm</td><td><span class="badge badge-pass">PASS</span></td><td>None.</td></tr><tr><td>timestamp_order_response_dttm_before_on_scene_dttm</td><td><span class="badge badge-pass">PASS</span></td><td>None.</td></tr><tr><td>timestamp_order_on_scene_dttm_before_transport_dttm</td><td><span class="badge badge-pass">PASS</span></td><td>None.</td></tr><tr><td>timestamp_order_transport_dttm_before_hospital_dttm</td><td><span class="badge badge-warn">WARN</span></td><td>Continue; rows where hospital_dttm < transport_dttm are excluded from interval metrics built on this pair and counted, per brief Q5 — not silently dropped from the dataset.</td></tr><tr><td>timestamp_order_hospital_dttm_before_available_dttm</td><td><span class="badge badge-warn">WARN</span></td><td>Continue; rows where available_dttm < hospital_dttm are excluded from interval metrics built on this pair and counted, per brief Q5 — not silently dropped from the dataset.</td></tr><tr><td>priority_domain</td><td><span class="badge badge-warn">WARN</span></td><td>Continue. Mapping documented in docs/assumptions.md as confirmed_by_owner=false.</td></tr><tr><td>freshness</td><td><span class="badge badge-pass">PASS</span></td><td>None — freshness vs. wall-clock time applies to --since/current-month pulls, not backfills.</td></tr>
+      <tr><td>manifest_completeness</td><td><span class="badge badge-pass">PASS</span></td><td>None.</td></tr><tr><td>schema_required_columns</td><td><span class="badge badge-pass">PASS</span></td><td>None.</td></tr><tr><td>rowid_uniqueness</td><td><span class="badge badge-pass">PASS</span></td><td>None.</td></tr><tr><td>null_rate_response_dttm</td><td><span class="badge badge-warn">WARN</span></td><td>Continue; excluded from metrics that require response_dttm, counted separately per brief Q4/Q9 (cancelled / unable-to-locate / genuinely-missing all fall here).</td></tr><tr><td>null_rate_on_scene_dttm</td><td><span class="badge badge-warn">WARN</span></td><td>Continue; excluded from metrics that require on_scene_dttm, counted separately per brief Q4/Q9 (cancelled / unable-to-locate / genuinely-missing all fall here).</td></tr><tr><td>null_rate_call_type_group</td><td><span class="badge badge-warn">WARN</span></td><td>Continue; excluded from metrics that require call_type_group, counted separately per brief Q4/Q9 (cancelled / unable-to-locate / genuinely-missing all fall here).</td></tr><tr><td>timestamp_order_dispatch_dttm_before_response_dttm</td><td><span class="badge badge-pass">PASS</span></td><td>None.</td></tr><tr><td>timestamp_order_response_dttm_before_on_scene_dttm</td><td><span class="badge badge-pass">PASS</span></td><td>None.</td></tr><tr><td>timestamp_order_on_scene_dttm_before_transport_dttm</td><td><span class="badge badge-pass">PASS</span></td><td>None.</td></tr><tr><td>timestamp_order_transport_dttm_before_hospital_dttm</td><td><span class="badge badge-warn">WARN</span></td><td>Continue; rows where hospital_dttm &lt; transport_dttm are excluded from interval metrics built on this pair and counted, per brief Q5 — not silently dropped from the dataset.</td></tr><tr><td>timestamp_order_hospital_dttm_before_available_dttm</td><td><span class="badge badge-warn">WARN</span></td><td>Continue; rows where available_dttm &lt; hospital_dttm are excluded from interval metrics built on this pair and counted, per brief Q5 — not silently dropped from the dataset.</td></tr><tr><td>outlier_p999_received_dttm_to_dispatch_dttm_minutes</td><td><span class="badge badge-warn">WARN</span></td><td>Continue. 29 row(s) above p99.9 (213.93 min; max 1117.55 min) stay in every metric - flagged for review only.</td></tr><tr><td>outlier_p999_hospital_dttm_to_available_dttm_minutes</td><td><span class="badge badge-warn">WARN</span></td><td>Continue. 7 row(s) above p99.9 (147.22 min; max 775.8 min) stay in every metric - flagged for review only.</td></tr><tr><td>priority_domain</td><td><span class="badge badge-warn">WARN</span></td><td>Continue. Mapping documented in docs/assumptions.md as confirmed_by_owner=false.</td></tr><tr><td>freshness</td><td><span class="badge badge-pass">PASS</span></td><td>None — freshness vs. wall-clock time applies to --since/current-month pulls, not backfills.</td></tr>
     </table>
   </div>
 
   <div class="footer">
-    Generated by pipeline/report.py. Every number above comes from outputs/metrics.json and
-    outputs/validation_report.json for this run - see docs/judgement_call.md, docs/decision_log.md
+    Generated by pipeline/report.py. Every number above comes from metrics.json and
+    validation_report.json for this run - see docs/judgement_call.md, docs/decision_log.md
     and docs/assumptions.md for the reasoning behind each definition and exclusion.
   </div>
 </body>
